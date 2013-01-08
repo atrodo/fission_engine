@@ -1,0 +1,168 @@
+  var sprite_catalog = {}
+
+  function Animation(options)
+  {
+    $.extend(this, {
+      name: null,
+      img: null,
+
+      frames: 1,
+      frame_inc: 1/8,
+      can_interrupt: true,
+      loop: true,
+      xw: 10,
+      yh: 10,
+      center: 5,
+      trim_s: 0,
+      trim_b: 0,
+    }, options);
+
+    if ($.type(this.name) != "string")
+      throw "Must provide an animation name";
+
+    this._img = this.img;
+    this.img = null;
+
+    if (!$.isFunction(this.get_img))
+    {
+      if (!(this._img instanceof HTMLElement))
+      {
+        if ($.type(this._img) != "string")
+          throw "Must provide img for an Animation";
+
+        this._img = preload(this._img);
+      }
+
+      this.get_img = function()
+      {
+        return this._img;
+      }
+    }
+  }
+
+  function Sprite(options)
+  {
+    $.extend(this, {
+      name: null,
+      animations: {},
+      default: null,
+
+      current: null,
+      next: null,
+      frame: 0,
+
+      isa_clone: false,
+    }, options);
+
+    //if ($.type(this.name) != "string")
+    //  throw "Must provide a sprite name";
+
+    if ($.type(this.animations) == "array")
+    {
+      var new_animations = {};
+      $.each(this.animations, function(i, animation)
+      {
+        if ($.isPlainObject(animation))
+          animation = new Animation(animation);
+
+        new_animations[animation.name] = animation;
+      });
+      this.animations = new_animations
+    }
+
+    if ($.type(this.default) == "string")
+      this.default = this.animations[this.default];
+
+    if (!(this.default instanceof Animation))
+      throw "Must provide a default Animation";
+
+    this.clone = function()
+    {
+      var result = $.extend({}, this);
+      result.isa_clone = true;
+
+      $.extend(result, {
+        img: function()
+        {
+          return this.current.get_img();
+        },
+
+        current_frame: function()
+        {
+          return floor(this.frame)
+        },
+
+        set_next: function(next)
+        {
+          if ($.type(next) == "string")
+            next = this.animations[next];
+
+          if (next == null)
+          {
+            this.next = null;
+            return;
+          }
+
+          if (!(next instanceof Animation))
+            return;
+
+          if (this.next != null)
+            return;
+
+          this.next = next
+        },
+
+        next_frame: function(done_cb)
+        {
+          this.frame += this.current.frame_inc || 1
+          if (this.frame >= this.current.frames)
+          {
+            if ($.isFunction(done_cb))
+              done_cb.call(this)
+
+            var next = this.next
+            if (next == null)
+            {
+              if (this.current.loop)
+              {
+                next = this.current
+              } else {
+                next = this.default
+              }
+            }
+
+            if (this.current == next)
+            {
+              this.frame -= this.current.frames
+            } else {
+              this.frame = 0
+            }
+
+            this.current = next
+            this.next = null
+          }
+          else if (this.current.can_interrupt && this.next != null)
+          {
+            if (this.next != this.current)
+            {
+              this.current = this.next
+              this.frame = 0
+            }
+            this.next = null
+          }
+        }
+      });
+
+      var next = result.next;
+      result.next = null;
+      result.set_next(next);
+
+      return result;
+    }
+
+    if (this.current == undefined)
+      this.current = this.default;
+
+    if (this.name)
+      sprite_catalog[this.name] = this;
+  }

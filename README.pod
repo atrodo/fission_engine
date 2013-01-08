@@ -1,0 +1,18 @@
+=head1 fission_engine - A JavaScript and Canvas based game engine
+
+This is fission_engine. It is a basic game engine that uses JavaScript,
+Canvas and HTML5.
+
+=head2 Installing Template::Toolkit
+
+  curl -L http://cpanmin.us | perl - L local .
+
+=head2 Using fission_engine
+
+=head2 Building fission_engine
+
+=head2 And remember
+
+It works on my machine
+
+=cut

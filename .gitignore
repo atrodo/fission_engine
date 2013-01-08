@@ -1,0 +1,5 @@
+.*.swp
+UglifyJS/
+blib/*
+local/
+pm_to_blib
