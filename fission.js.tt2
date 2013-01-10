@@ -24,6 +24,20 @@
     [% map_xw   = 64 * 9 %]
     [% map_yh   = 64 * 4 %]
 
+    [% game_prefix = 'bifission' %]
+    [% game_js = "${game_prefix}_js" %]
+    [%
+      MACRO INCLUDE_MAYBE(file)
+        TRY ;
+          PROCESS "$file" ;
+        CATCH file ;
+          CLEAR ;
+          GET "/* NOPE: $file */" ;
+          GET "/* $error */" ;
+        END
+    %]
+
+
     [% INCLUDE js/events.js %]
     [% INCLUDE js/lprng.js %]
     [% INCLUDE js/physics.js %]
@@ -37,24 +51,14 @@
     [% INCLUDE js/input.js %]
     [% INCLUDE js/misc.js %]
 
-    [% INCLUDE_MAYBE("js/gen_foes.js") %]
-    [% INCLUDE_MAYBE("js/game_runtime.js") %]
+    [% INCLUDE_MAYBE("$game_js/gen_foes.js") %]
+    [% INCLUDE_MAYBE("$game_js/game_runtime.js") %]
 
-    [% INCLUDE_MAYBE("js/sprites.js") %]
-    [% INCLUDE_MAYBE("js/runtime_setup.js") %]
+    [% INCLUDE_MAYBE("$game_js/sprites.js") %]
+    [% INCLUDE_MAYBE("$game_js/runtime_setup.js") %]
 
-    [% INCLUDE_MAYBE("js/chunk_gen.js") %]
+    [% INCLUDE_MAYBE("$game_js/chunk_gen.js") %]
 
   }
 
 })(jQuery);
-
-[%
-  MACRO INCLUDE_MAYBE(file)
-    TRY ; 
-      PROCESS "$file" ;
-    CATCH file ;
-      CLEAR ;
-    END
-%]
-
