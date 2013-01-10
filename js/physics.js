@@ -422,8 +422,8 @@
         if (this.flags.reduce_momentum)
         {
           reduce("momentum_j", 1)
-          reduce("momentum_l", 2)
-          reduce("momentum_r", 2)
+          reduce("momentum_l", 1.5)
+          reduce("momentum_r", 1.5)
         }
 
         this.last_frame.was_m = m_stats.is_m
@@ -479,7 +479,7 @@
         }, attack_obj);
 
         if (!$.isFunction(attack_obj.collide))
-          throw new Error("Must pass a collide test for attack");
+          throw "Must pass a collide test for attack";
 
         attack_obj.relative_x = null
         attack_obj.relative_y = null

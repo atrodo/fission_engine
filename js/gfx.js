@@ -244,31 +244,6 @@
           )
         }
       }
-
-      /*
-      var scratch_oil = $("<canvas/>")
-        .attr("width",  tiles.tiles_rxw * chunks.chunk_xw)
-        .attr("height", tiles.tiles_ryh * chunks.chunk_yh)
-      var context_oil = scratch_oil.get(0).getContext("2d")
-
-      for (var x = 0; x < tiles.tiles_rxw * chunks.chunk_xw; x++)
-        for (var y = 0; y < tiles.tiles_ryh * chunks.chunk_yh; y++)
-        {
-          var pixels = context_bg.getImageData(x-4, y-4, 1, 1)
-          var d = pixels.data
-          for (var i = 0; i < d.length; i += 4)
-          {
-            var r = d[i];
-            var g = d[i+1];
-            var b = d[i+2];
-            var v = 0.2126*r + 0.7152*g + 0.0722*b;
-            d[i] = d[i+1] = d[i+2] = v
-          }
-          context_oil.putImageData(pixels, x-4, y-4)
-        }
-        */
-
-
       loaded_chunks[chunk.get_name()] =
       {
         x: chunk.meta.chunk_x,

@@ -16,6 +16,7 @@
   function Chunk(chunk_x, chunk_y)
   {
     $.extend(this, {
+      env: null,
       meta: {
         chunk_x: chunk_x,
         chunk_y: chunk_y,
