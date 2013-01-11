@@ -23,11 +23,6 @@
 
   $(function()
   {
-    var filter_x  = 0;
-    var filter_y  = 0;
-    var filter_xm = -0.5   * 4;
-    var filter_ym =  0.875 * 4;
-
     var frames_done = 0;
     var frames_time = 0;
     var phys_done = 0;
@@ -225,8 +220,6 @@
 
         context.restore()
 
-        /*
-        */
         context.save()
         context.translate(width * (1/2), height * (1/2))
         context.translate(-trans_x + -cou.x * tiles.tiles_xw, trans_y + cou.y * tiles.tiles_yh)
@@ -244,35 +237,6 @@
             painted_chunk.y * mul_y
           )
         }
-
-        context.restore()
-
-        context.save()
-
-        // Handle the filter and movement
-
-        /*
-        filter_x = filter_x + filter_xm;
-        filter_y = filter_y + filter_ym;
-
-        if (filter_x >  width) filter_x -= width;
-        if (filter_x < -width) filter_x += width;
-
-        if (filter_y >  height) filter_y -= height;
-        if (filter_y < -height) filter_y += height;
-
-        for (var x = 0; x <= width; x += width)
-        {
-          for (var y = -height; y < height; y += height)
-          {
-            context.drawImage(
-              preload_images.filter,
-              filter_x + x,
-              filter_y + y
-            )
-          }
-        }
-        */
 
         context.restore()
 
