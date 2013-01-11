@@ -15,14 +15,13 @@
   trans_x = -4800
   trans_y = 3200
   [% END %]
-    var physics_timing = 40
-    var draw_timing = 33
 
     var width  = 640
     var height = 480
-
-  $(function()
+  function Runtime(options)
   {
+    var physics_timing = 40
+
     var frames_done = 0;
     var frames_time = 0;
     var phys_done = 0;
@@ -390,7 +389,6 @@
 
       phys_interval    = setInterval(physics, physics_timing);
       repaint_interval = true;
-      //repaint_interval = setInterval(repaint, draw_timing);
       fps_interval     = setInterval(fps, 1000);
       chunks_interval  = setInterval(paint_chunks, 1000);
       mon_gen_interval = setInterval(mon_gen, 1000);
@@ -444,4 +442,5 @@
     suspend_physics = function() { run_physics = false };
     resume_physics = function() { run_physics = true };
 
-  });
+  }
+  var runtime = new Runtime()
