@@ -15,6 +15,7 @@
     [% debug        = 0 %]
     [% show_map     = 0 %]
     [% engine_input = 0 %]
+    [% show_timings = 0 %]
 
     [% tiles_bd = 4 %]
     [% tiles_xw = 20 %]

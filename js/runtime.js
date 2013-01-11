@@ -22,33 +22,38 @@
   {
     var physics_timing = 40
 
-    var frames_done = 0;
-    var frames_time = 0;
-    var phys_done = 0;
-    var phys_time = 0;
+    [% IF show_timings %]
+    var timings = {}
     var fps_span = $("<span/>")
+    [% END %]
 
     var frame_logics = [];
     var run_physics = true
 
     input = new Input()
 
+    [% IF show_timings %]
     var fps = function()
     {
       fps_span
-        .text("Frames Per Second: " + frames_done)
-        .append(" Frames total ms: " + frames_time)
-        .append(" Frames avg ms: " + ~~(frames_time / frames_done))
-        .append("<br>")
-        .append("Physics Per Second: " + phys_done)
-        .append(" Physics total ms: " + phys_time)
-        .append(" Physics avg ms: " + ~~(phys_time / phys_done))
+        .empty()
 
-      frames_done = 0
-      frames_time = 0
-      phys_done = 0
-      phys_time = 0
+      var timing_names = Object.keys(timings).sort()
+      for (var i = 0; i < timing_names.length; i++)
+      {
+        var name = timing_names[i]
+        var timing = timings[name]
+        fps_span
+          .append(" " + name + " Per Second: " + timing.done)
+          .append(" " + name + " total ms: " + timing.time)
+          .append(" " + name + " avg ms: " + floor(timing.time / timing.done))
+          .append("<br/>")
+      }
+
+      timings = {}
     }
+    var fps_interval     = setInterval(fps, 1000);
+    [% END %]
 
     var canvas = $("<canvas/>")
       .attr("height", height)
@@ -60,6 +65,10 @@
 
     content
       .empty()
+      [% IF show_timings %]
+      .append(fps_span)
+      .append("<br/>")
+      [% END %]
       .append(canvas)
 
     // Center of universe
@@ -68,8 +77,7 @@
 
     var repaint = function()
     {
-      var frame_start = Date.now();
-      frames_done++
+      [% WRAPPER per_second name="Frame" %]
 
       var cou = {
         x: cou_source.x,
@@ -267,7 +275,7 @@
         context.restore()
       }
 
-      frames_time += Date.now() - frame_start;
+      [% END %]
     }
 
     [% INCLUDE js/recording.js %]
@@ -277,13 +285,11 @@
 
     var physics = function(reset_last_frame)
     {
-      var phys_start = Date.now()
-
       var now = Date.now();
 
       while (last_frame < now)
       {
-        phys_done++
+        [% WRAPPER per_second name="Physics" %]
         last_frame += physics_timing
 
         if (run_physics)
@@ -334,13 +340,13 @@
 
           flushed_chunks = {}
         [% END %]
+
+        [% END %]
       }
-      phys_time += Date.now() - phys_start;
     }
 
     var phys_interval    //= setInterval(physics, physics_timing);
     var repaint_interval //= setInterval(repaint, draw_timing);
-    var fps_interval     //= setInterval(fps, 1000);
     var chunks_interval  //= setInterval(paint_chunks, 1000);
     var mon_gen_interval //= setInterval(mon_gen, 1000);
 
@@ -389,7 +395,6 @@
 
       phys_interval    = setInterval(physics, physics_timing);
       repaint_interval = true;
-      fps_interval     = setInterval(fps, 1000);
       chunks_interval  = setInterval(paint_chunks, 1000);
       mon_gen_interval = setInterval(mon_gen, 1000);
     }
@@ -400,7 +405,6 @@
       clearInterval(phys_interval)
       repaint_interval = false;
       //clearInterval(repaint_interval)
-      clearInterval(fps_interval)
       clearInterval(chunks_interval)
       clearInterval(mon_gen_interval)
     }
@@ -444,3 +448,19 @@
 
   }
   var runtime = new Runtime()
+
+[% BLOCK per_second %]
+  [% DEFAULT name="Misc" %]
+  [% IF show_timings %]
+    if (timings["[% name %]"] == undefined)
+      timings["[% name %]"] = {time: 0, done: 0}
+    var timing_start = Date.now();
+
+    [% content %]
+
+    timings["[% name %]"].time += Date.now() - timing_start;
+    timings["[% name %]"].done++
+  [% ELSE %]
+    [% content %]
+  [% END %]
+[% END %]
