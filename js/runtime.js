@@ -21,22 +21,19 @@
   function Runtime(options)
   {
     $.extend(this, {
-    var physics_timing = 40
+      width:  640,
+      height: 480,
 
       events: new Events(),
     }, options);
+
+    var self = this;
+
+    var physics_timing = 40
+
     [% IF show_timings %]
     var timings = {}
     var fps_span = $("<span/>")
-    [% END %]
-
-    var self = this;
-    var frame_logics = [];
-    var run_physics = true
-
-    input = new Input()
-
-    [% IF show_timings %]
     var fps = function()
     {
       fps_span
@@ -58,6 +55,11 @@
     }
     var fps_interval     = setInterval(fps, 1000);
     [% END %]
+
+    var frame_logics = [];
+    var run_physics = true
+
+    input = new Input()
 
     var canvas = $("<canvas/>")
       .attr("height", height)
@@ -87,19 +89,6 @@
         x: cou_source.x,
         y: cou_source.y,
       }
-
-      /*
-      if (_last_cou != undefined)
-      {
-        var diff_x = cou.x - _last_cou.x
-        if (_last_cou.needs_moved || abs(diff_x) > 10)
-        {
-          cou.x = _last_cou.x + (diff_x / 10)//signed_log(diff_x * 2)
-          if (abs(diff_x) > 1)
-            cou.needs_moved = true;
-        }
-      }
-      */
 
       var chunk_x_mid = chunks.chunk_xw >> 1
       var chunk_y_mid = chunks.chunk_yh >> 1
@@ -350,9 +339,7 @@
     }
 
     var phys_interval    //= setInterval(physics, physics_timing);
-    var repaint_interval //= setInterval(repaint, draw_timing);
-    var chunks_interval  //= setInterval(paint_chunks, 1000);
-    var mon_gen_interval //= setInterval(mon_gen, 1000);
+    var process_painting = false
 
     var anim_frame =
       window.requestAnimationFrame ||
@@ -368,7 +355,7 @@
 
     var frame_requested = function()
     {
-      if (repaint_interval)
+      if (process_painting)
       try
       {
         var x_offset = (_xw_trans / tiles.tiles_xw)
@@ -398,19 +385,14 @@
       last_frame = bot
 
       phys_interval    = setInterval(physics, physics_timing);
-      repaint_interval = true;
-      chunks_interval  = setInterval(paint_chunks, 1000);
-      mon_gen_interval = setInterval(mon_gen, 1000);
+      process_painting = true;
     }
 
     stop_runtime = function()
     {
       console.log("Runtime stopping")
       clearInterval(phys_interval)
-      repaint_interval = false;
-      //clearInterval(repaint_interval)
-      clearInterval(chunks_interval)
-      clearInterval(mon_gen_interval)
+      process_painting = false;
     }
 
     [% IF debug %]
