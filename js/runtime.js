@@ -4,7 +4,6 @@
   var add_frame_logic = function() {};
   var suspend_physics = function() {};
   var resume_physics = function() {};
-  var input
 
     var zoom = 1;
     var trans_x = 0;
@@ -58,8 +57,6 @@
 
     var frame_logics = [];
     var run_physics = true
-
-    input = new Input()
 
     var canvas = $("<canvas/>")
       .attr("height", height)
@@ -287,7 +284,7 @@
 
         if (run_physics)
         {
-          input.frame()
+          runtime.events.emit('input_frame')
           process_physics()
         }
 

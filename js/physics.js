@@ -34,6 +34,7 @@
       },
 
       sprite: null,
+      input: new Input(),
       ai: null,
 
       deferred: $.Deferred(),

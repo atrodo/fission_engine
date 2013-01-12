@@ -1,6 +1,7 @@
   function Input(options)
   {
     $.extend(true, this, {
+      listen: false,
     }, options);
 
     var actions = { }
@@ -43,30 +44,6 @@
       //console.log(e.type, e.which, keys.join('+'))
       return keys.join('+');
     }
-
-    $(document).bind("keydown", function(e)
-    {
-      var action = bounds[nice_name(e)]
-
-      if (action == undefined)
-        return
-
-      e.preventDefault();
-
-      active_actions[action] = $.merge([], actions[action].cb)
-    });
-
-    $(document).bind("keyup", function(e)
-    {
-      var action = bounds[nice_name(e)]
-
-      if (action == undefined)
-        return
-
-      e.preventDefault();
-
-      delete active_actions[action]
-    });
 
     this.register_action = function(action_name, default_bound, cb)
     {
@@ -120,89 +97,114 @@
       })
     }
 
+    runtime.events.on('input_frame', this.frame)
+
     this.register_action("right", "right")
     this.register_action("left",  "left")
     this.register_action("jump",  "space up")
     this.register_action("atk_pri", "x")
     this.register_action("atk_sec", "z")
 
-  }
+    if (this.listen)
+    {
+      $(document).bind("keydown", function(e)
+      {
+        var action = bounds[nice_name(e)]
 
-  [% IF engine_input %]
-  $(function()
-  {
-    input.register_action('force_up', 'a', function()
+        if (action == undefined)
+          return
+
+        e.preventDefault();
+
+        active_actions[action] = $.merge([], actions[action].cb)
+      });
+
+      $(document).bind("keyup", function(e)
+      {
+        var action = bounds[nice_name(e)]
+
+        if (action == undefined)
+          return
+
+        e.preventDefault();
+
+        delete active_actions[action]
+      });
+    }
+
+    [% IF engine_input %]
+    this.register_action('force_up', 'a', function()
     {
       user.y += 2;
     })
-    input.register_action('force_down', 'shift+a', function()
+    this.register_action('force_down', 'shift+a', function()
     {
       user.y -= 2;
     })
 
-    input.register_action('show_frame', 't', function()
+    this.register_action('show_frame', 't', function()
     {
       console.log('t');
       runtime_frame();
     })
 
-    input.register_action('show_all_phys', 'y', function()
+    this.register_action('show_all_phys', 'y', function()
     {
       //all_physics.pop()
       console.log(all_physics)
     })
 
-    input.register_action('remove_last_phys', 'shift+y', function()
+    this.register_action('remove_last_phys', 'shift+y', function()
     {
       all_physics.pop()
       console.log(all_physics)
     })
 
-    input.register_action('start_runtime','shift+q `', function()
+    this.register_action('start_runtime','shift+q `', function()
     {
       start_runtime()
     })
 
-    input.register_action('stop_runtime', 'q esc', function()
+    this.register_action('stop_runtime', 'q esc', function()
     {
       stop_runtime()
     })
 
-    input.register_action('zoom_out', '-', function()
+    this.register_action('zoom_out', '-', function()
     {
       zoom = zoom / 2
       console.log(zoom)
     })
 
-    input.register_action('zoom_in', '+', function()
+    this.register_action('zoom_in', '+', function()
     {
       zoom = zoom * 2
       console.log(zoom)
     })
 
-    input.register_action('trans_l', 'h', function()
+    this.register_action('trans_l', 'h', function()
     {
       trans_x -= 200
       console.log(trans_x, trans_y)
     })
 
-    input.register_action('trans_r', 'l', function()
+    this.register_action('trans_r', 'l', function()
     {
       trans_x += 200
       console.log(trans_x, trans_y)
     })
 
-    input.register_action('trans_d', 'j', function()
+    this.register_action('trans_d', 'j', function()
     {
       trans_y -= 200
       console.log(trans_x, trans_y)
     })
 
-    input.register_action('trans_u', 'k', function()
+    this.register_action('trans_u', 'k', function()
     {
       trans_y += 200
       console.log(trans_x, trans_y)
     })
+    [% END %]
+  }
 
-  })
-  [% END %]

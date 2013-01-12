@@ -52,11 +52,11 @@
     [% INCLUDE js/input.js %]
     [% INCLUDE js/misc.js %]
 
-    [% INCLUDE_MAYBE("$game_js/gen_foes.js") %]
-    [% INCLUDE_MAYBE("$game_js/game_runtime.js") %]
-
     [% INCLUDE_MAYBE("$game_js/sprites.js") %]
     [% INCLUDE_MAYBE("$game_js/runtime_setup.js") %]
+
+    [% INCLUDE_MAYBE("$game_js/gen_foes.js") %]
+    [% INCLUDE_MAYBE("$game_js/game_runtime.js") %]
 
     [% INCLUDE_MAYBE("$game_js/chunk_gen.js") %]
 
