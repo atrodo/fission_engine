@@ -1,5 +1,3 @@
-  var event_div = $("<div/>")
-
   function Events()
   {
     var listeners = {}
@@ -25,11 +23,11 @@
         if (!$.isArray(listeners[type]))
           listeners[type] = []
 
-        var args = Array.slice(arguments, 1)
+        var args = Array.prototype.slice.call(arguments, 1)
         var cbs = listeners[type].slice()
         while (cbs.length > 0)
         {
-          cb.shift().apply(this, args)
+          cbs.shift().apply(this, args)
         }
       },
       off: function(type, cb)
@@ -37,10 +35,11 @@
         if (cb == undefined)
           throw new Error("You cannot remove all listeners on an event")
 
-        if (!$.isFunction(c))
+        if (!$.isFunction(cb))
           throw new Error("You must pass a listener to Event.off")
 
-        if (listeners[type].indexOf(cb) < 0)
+        var index = listeners[type].indexOf(cb)
+        if (index != undefined && index >= 0)
         {
           listeners[type].splice(index, 1);
         }

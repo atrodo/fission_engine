@@ -268,11 +268,6 @@
           localStorage[chunk_name] = JSON.stringify(stringify(chunk));
         }
 
-        if (localStorage[chunk_name] != undefined)
-        {
-          //event_div.trigger('fission.cache_flush', chunk_name);
-        }
-
         if (localStorage.attr == undefined)
           localStorage.attr = {}
 

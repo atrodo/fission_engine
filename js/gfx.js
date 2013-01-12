@@ -94,7 +94,7 @@
           window.clearInterval(preload_interval)
           progress.fadeOut(function()
           {
-            event_div.trigger('fission.preload_done');
+            runtime.events.emit('preload_done');
           })
         }
 
@@ -178,7 +178,7 @@
     {
       if (to_paint.length == 0)
       {
-        event_div.trigger('fission.painted_chunks', count_object_keys(loaded_chunks));
+        runtime.events.emit('painted_chunks', count_object_keys(loaded_chunks));
         return;
       }
 
@@ -199,7 +199,7 @@
 
       var finish = Date.now()
       console.log((finish - start) / 1000, "seconds, ", done, " Painted");
-      event_div.trigger('fission.painted_chunks', count_object_keys(loaded_chunks));
+      runtime.events.emit('painted_chunks', count_object_keys(loaded_chunks));
 
     }, [% paint_chunk_interval %]);
 
@@ -266,7 +266,7 @@
       paint_one(chunk);
     }
 
-    event_div.bind('fission.cache_flush', function(e, chunk_name)
+    runtime.events.on('cache_flush', function(chunk_name)
     {
       console.log('---', chunk_name);
       delete loaded_chunks[chunk_name]
@@ -277,7 +277,7 @@
       catch(e) { console.log(e) }
     });
 
-    event_div.bind('fission.cache_flush_all', function(e, chunk_name)
+    runtime.events.on('cache_flush_all', function(chunk_name)
     {
       console.log('---', chunk_name);
       $.each(loaded_chunks, function(k, v)

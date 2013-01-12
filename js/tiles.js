@@ -123,7 +123,7 @@
         && $.type( self.background ) != "string" )
       {
         self.loaded = true;
-        event_div.trigger('fission.tiles_done', self);
+        runtime.events.emit('tiles_done', self);
       }
     }
 

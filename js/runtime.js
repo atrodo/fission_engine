@@ -20,13 +20,17 @@
     var height = 480
   function Runtime(options)
   {
+    $.extend(this, {
     var physics_timing = 40
 
+      events: new Events(),
+    }, options);
     [% IF show_timings %]
     var timings = {}
     var fps_span = $("<span/>")
     [% END %]
 
+    var self = this;
     var frame_logics = [];
     var run_physics = true
 
@@ -422,7 +426,7 @@
         )
     [% END %]
 
-    event_div.bind('fission.preload_done', function()
+    self.events.on('preload_done', function()
     {
       chunks.flush()
       paint_chunks()
