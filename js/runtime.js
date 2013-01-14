@@ -335,6 +335,7 @@
       }
     }
 
+    var chunks_interval  //= setInterval(paint_chunks, 1000);
     var phys_interval    //= setInterval(physics, physics_timing);
     var process_painting = false
 
@@ -381,6 +382,7 @@
       bot = Date.now()
       last_frame = bot
 
+      chunks_interval  = setInterval(paint_chunks, 1000);
       phys_interval    = setInterval(physics, physics_timing);
       process_painting = true;
     }
@@ -388,6 +390,7 @@
     stop_runtime = function()
     {
       console.log("Runtime stopping")
+      clearInterval(chunks_interval)
       clearInterval(phys_interval)
       process_painting = false;
     }
