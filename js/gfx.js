@@ -242,6 +242,45 @@
             x * tiles.tiles_xw - tiles.tiles_bd,
             y * tiles.tiles_yh - tiles.tiles_bd
           )
+
+          [% IF show_phys_box %]
+            var xl = x * tiles.tiles_xw
+            var xr = x * tiles.tiles_xw + tiles.tiles_xw
+            var yt = y * tiles.tiles_yh
+            var yb = y * tiles.tiles_yh + tiles.tiles_yh
+            if (c.physics.angle_tl)
+            {
+              context_fg.strokeStyle = "rgba(255, 0, 0, 0.5)"
+              context_fg.beginPath()
+              context_fg.moveTo(xl, yt)
+              context_fg.lineTo(xr, yb)
+              context_fg.stroke()
+            }
+            if (c.physics.angle_tr)
+            {
+              context_fg.strokeStyle = "rgba(0, 255, 0, 0.5)"
+              context_fg.beginPath()
+              context_fg.moveTo(xr, yt)
+              context_fg.lineTo(xl, yb)
+              context_fg.stroke()
+            }
+            if (c.physics.angle_bl)
+            {
+              context_fg.strokeStyle = "rgba(0, 0, 255, 0.5)"
+              context_fg.beginPath()
+              context_fg.moveTo(xl, yb)
+              context_fg.lineTo(xr, yt)
+              context_fg.stroke()
+            }
+            if (c.physics.angle_br)
+            {
+              context_fg.strokeStyle = "rgba(255, 0, 255, 0.5)"
+              context_fg.beginPath()
+              context_fg.moveTo(xr, yb)
+              context_fg.lineTo(xl, yt)
+              context_fg.stroke()
+            }
+          [% END %]
         }
       }
       loaded_chunks[chunk.get_name()] =

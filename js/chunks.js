@@ -45,7 +45,11 @@
     [% TILE    = "0" %]
     [% PHYSICS = "1" %]
     var tile_trans = {
-      solid: 0x0001
+      solid: 0x0001,
+      angle_tl: 0x0100,
+      angle_tr: 0x0200,
+      angle_bl: 0x0400,
+      angle_br: 0x0800,
     }
 
     var self = this;

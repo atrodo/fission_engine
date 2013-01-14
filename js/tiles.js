@@ -2,6 +2,10 @@
   {
     $.extend(this, {
       solid: false,
+      angle_tl: false,
+      angle_tr: false,
+      angle_bl: false,
+      angle_br: false,
 
       background: null,
       foreground: null,
