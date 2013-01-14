@@ -105,7 +105,7 @@
         {
           value = {
             tile: value,
-            physics: tiles[value],
+            physics: $.extend({}, tiles[value]),
           }
         }
 
@@ -160,7 +160,7 @@
             var input = v[[% PHYSICS %]]
             for (var k in tile_trans)
             {
-              phy[k] = input & tile_trans[k] == tile_trans[k]
+              phy[k] = (input & tile_trans[k]) == tile_trans[k]
             }
             chunk[i-1][j] = {
               tile: v[[% TILE %]] || 0,
