@@ -247,8 +247,8 @@
           var other = all_physics[i]
           
           // See if the two objects are even close
-          if ( other.x >> 4 == this.x >> 4
-            && other.y >> 4 == this.y >> 4 )
+          if ( floor(this.x - other.x) < 16
+            && floor(this.y - other.y) < 16 )
           {
             if ( ( other.x < xmax && other.x + other.xw > xmin )
               && ( other.y < ymax && other.y + other.yh > ymin))
