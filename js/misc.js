@@ -11,6 +11,7 @@ var ceil = function(num)
   return (num | 0) == num ? num | 0 : (num + 1) | 0
 }
 var abs = Math.abs
+var sqrt = Math.sqrt
 
 var log = function(num)
 {
@@ -26,6 +27,16 @@ var signed_log = function(num)
   var result = Math.log(abs(num))
 
   return sign * result
+}
+
+var max = function(a, b)
+{
+  return (a > b) ? a : b;
+}
+
+var min = function(a, b)
+{
+  return (a < b) ? a : b;
 }
 
 var fix_all = function(old_all)
