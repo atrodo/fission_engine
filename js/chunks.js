@@ -64,8 +64,11 @@
         if (x < 0 || y < 0)
           return;
 
-        var chunk_x = Math.floor(x / this.chunk_xw)
-        var chunk_y = Math.floor(y / this.chunk_yh)
+        x = floor(x)
+        y = floor(y)
+
+        var chunk_x = floor(x / this.chunk_xw)
+        var chunk_y = floor(y / this.chunk_yh)
 
         var chunk = this.get_chunk(chunk_x, chunk_y)
         if (chunk == undefined)
