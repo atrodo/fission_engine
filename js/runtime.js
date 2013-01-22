@@ -175,13 +175,6 @@
             if (Math.abs(x) > width * 2 || Math.abs(y) > height * 2)
               continue
 
-            if (phys.flags.facing_left)
-            {
-              context.scale(-1, 1)
-              context.translate(-sprite.center, 0)
-              x = -x
-            }
-
             [% IF show_phys_box %]
             context.strokeStyle = "rgba(255, 165, 0, 0.5)"
             context.strokeRect(
@@ -191,6 +184,13 @@
               phys.yh * tiles.tiles_yh
             )
             [% END %]
+
+            if (phys.flags.facing_left)
+            {
+              context.scale(-1, 1)
+              context.translate(-sprite.center, 0)
+              x = -x
+            }
 
             context.drawImage(
               phys.sprite.img(),
