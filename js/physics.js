@@ -13,9 +13,8 @@
       max_jump: 6,
       gravity: -9,
 
-      momentum_j: 0,
-      momentum_l: 0,
-      momentum_r: 0,
+      momentum_y: 0,
+      momentum_x: 0,
       current_j: 0,
 
       chunk: null,
@@ -25,12 +24,13 @@
       relative_x: null,
       relative_y: null,
 
+      next_frame: {
+        momentum_y: false,
+        momentum_x: false,
+      },
       last_frame: {
         was_m: false,
         was_j: false,
-        momentum_j: 0,
-        momentum_l: 0,
-        momentum_r: 0
       },
 
       sprite: null,
@@ -148,7 +148,7 @@
     $.extend(this, {
       is_m: function()
       {
-        return this.momentum_l || this.momentum_r
+        return this.momentum_x != 0
       },
     });
 
@@ -165,43 +165,53 @@
 
       add_momentum_l: function()
       {
-        if (this.momentum_r > 0)
-        {
-          this.momentum_r -= 1
-          this.momentum_r = Math.max(this.momentum_r, 0)
-        } else {
+        this.momentum_x = floor(this.momentum_x)
+        if (this.momentum_x == 0)
           this.flags.facing_left = true
-          this.momentum_l += 1
-          this.momentum_l = Math.min(this.momentum_l, this.max_speed)
+
+        if (this.flags.facing_left)
+        {
+          this.next_frame.momentum_x = 1
         }
+        else
+        {
+          // Converge to zero
+          this.next_frame.momentum_x = (this.momentum_x < 0 ? 1 : -1)
+        }
+
+        //this.momentum_x = Math.min(this.momentum_x, this.max_speed)
       },
 
       add_momentum_r: function()
       {
-        if (this.momentum_l > 0)
-        {
-          this.momentum_l -= 1
-          this.momentum_l = Math.max(this.momentum_l, 0)
-        } else {
+        this.momentum_x = floor(this.momentum_x)
+        if (this.momentum_x == 0)
           this.flags.facing_left = false
-          this.momentum_r += 1
-          this.momentum_r = Math.min(this.momentum_r, this.max_speed)
+
+        if (!this.flags.facing_left)
+        {
+          this.next_frame.momentum_x = 1
         }
+        else
+        {
+          // Converge to zero
+          this.next_frame.momentum_x = (this.momentum_x < 0 ? 1 : -1)
+        }
+
+        //this.momentum_x = Math.min(this.momentum_x, this.max_speed)
+
       },
 
       add_momentum_j: function()
       {
+        this.next_frame.momentum_y = 1
         // Ignore jumps if the current jump is as high as they can go
-        if (this.current_j < this.max_jump)
-        {
-          this.momentum_j += 1
-          this.momentum_j = Math.min(this.momentum_j, this.max_speed)
-        }
+          //this.momentum_y = Math.min(this.momentum_y, this.max_speed)
       },
     })
 
     $.extend(this, {
-      is_collide: function(round, full)
+      is_collide: function(unused_round, full)
       {
         full = !!full
         var is_solid = this.flags.solid
@@ -213,25 +223,33 @@
 
         var all_colide = []
 
-        if (round == undefined)
-          round = floor;
-
         if (this.chunk == undefined)
           return;
 
-        var tile_x = round(this.x)
-        var tile_y = round(this.y)
-
-        for (var i = tile_x; i < tile_x + this.xw; i++)
-          for (var j = tile_y; j < tile_y + this.yh; j++)
+        for (var i = floor(this.x); i < this.x + this.xw; i++)
+          for (var j = floor(this.y); j < this.y + this.yh; j++)
           {
             var tile = this.chunk.get_phys(i, j)
             if (tile.solid)
             {
-              if (full)
-                all_colide.push($.extend({x: i, y: j}, this.chunk.get(i, j)))
-              else
-                return true;
+              // Check slope
+              var fail_slope = true;
+
+              // bl
+              if (tile.angle_bl && i == floor(this.x) && j == floor(this.y))
+              {
+                var slope = (this.y - j) / (this.x - (i + 1))
+                if (slope < -1)
+                  fail_slope = false
+              }
+
+              if (fail_slope)
+              {
+                if (full)
+                  all_colide.push($.extend({x: i, y: j}, this.chunk.get(i, j)))
+                else
+                  return true
+              }
             }
           }
 
@@ -245,7 +263,7 @@
             continue;
 
           var other = all_physics[i]
-          
+
           // See if the two objects are even close
           if ( floor(this.x - other.x) < 16
             && floor(this.y - other.y) < 16 )
@@ -304,65 +322,131 @@
 
       set_pos: function()
       {
-        var old_pos = {
-          y: this.y,
-          x: this.x,
-          current_j: this.current_j,
-        }
-
         var self = this
-
-        if (this.momentum_l > this.momentum_r)
-        {
-          this.x += sub_pixel * -this.momentum_l
-
-          while (this.x < old_pos.x)
-          {
-            if (!self.is_collide(floor))
-              break;
-            this.x = floor(this.x + 1)
-            this.momentum_l = 0
-          }
-        } else if (this.momentum_l < this.momentum_r) {
-          this.x += sub_pixel * this.momentum_r
-
-          while (this.x > old_pos.x)
-          {
-            if (!self.is_collide(ceil))
-              break;
-            this.x = ceil(this.x - 1)
-            this.momentum_r = 0
-          }
+        var result = {
+          hit_wall: false,
+          hit_floor: false,
+          hit_ceiling: false,
         }
 
-        this.y += sub_pixel * this.momentum_j
-        this.current_j += sub_pixel * this.momentum_j
+        var x_dir = this.flags.facing_left ? -1 : 1
+        var y_dir = this.momentum_y <= 0 ? -1 : 1
 
-        var hit_floor = false
+        var distance = sub_pixel * this.momentum_x
 
-        if (this.momentum_j > 0)
+        var was_on_floor = false
+        var facing_left = this.flags.facing_left
+
+        // Check to see if they were on the floor
+        var was_on_floor = false
+
+        if (y_dir < 0)
+        {
+          this.y -= sub_pixel
+          var collide = self.is_collide()
+          if (self.is_collide())
+            was_on_floor = true
+          this.y += sub_pixel
+        }
+
+        var handle_slope = function(distance)
+        {
+          if (distance == 0)
+            return 0
+
+          var tile = self.chunk.get_phys(self.x, self.y)
+          if (was_on_floor && tile)
+          {
+            if (tile.angle_bl || tile.angle_br)
+            {
+              // Keep them on the floor
+              var x_distance = min((self.x - floor(self.x)), distance)
+              if (x_distance == 0)
+                x_distance = distance
+
+              var slope_dir = 1
+              if (tile.angle_bl && !facing_left)
+                slope_dir = -1
+
+              if (tile.angle_br && facing_left)
+                slope_dir = -1
+
+              self.y += x_distance * slope_dir
+              return x_distance
+            }
+          }
+
+          return distance
+        }
+
+        while (distance > 1)
+        {
+          var x_distance = handle_slope(1)
+
+          this.x += x_dir * x_distance
+          distance -= x_distance
+          if (self.is_collide())
+            distance = 0
+        }
+
+        this.x += x_dir * handle_slope(distance)
+
+        while (self.is_collide())
+        {
+          this.x -= x_dir * sub_pixel
+          result.hit_wall = true
+        }
+
+        distance = abs(sub_pixel * this.momentum_y)
+
+        while (distance > 1)
+        {
+          this.y += y_dir * 1
+          distance -= 1
+          if  (y_dir > 0)
+            this.current_j += y_dir * 1
+          if (self.is_collide())
+            distance = 0
+        }
+
+        this.y += y_dir * distance
+        if  (y_dir > 0)
+          this.current_j += y_dir * distance
+
+        while (self.is_collide())
+        {
+          this.y -= y_dir * sub_pixel
+          if (y_dir > 0)
+            result.hit_ceiling = true
+          else
+            result.hit_floor = true
+        }
+
+        /*
+        if (this.momentum_y > 0)
         {
           while (this.y > old_pos.y)
           {
             if (!self.is_collide(ceil))
               break;
             this.y = ceil(this.y - 1)
-            this.momentum_j = 0
+            this.momentum_y = 0
             this.current_j = this.max_jump
           }
-        } else if (this.momentum_j < 0) {
+        } else if (this.momentum_y < 0) {
           while (this.y < old_pos.y)
           {
             if (!self.is_collide(floor))
               break;
             this.y = floor(this.y + 1)
-            this.momentum_j = 0
+            this.momentum_y = 0
             this.current_j = 0
             hit_floor = true
           }
         }
+        */
 
-        return { hit_floor: hit_floor }
+        return result
       },
 
       frame: function()
@@ -384,27 +468,91 @@
           this.callback.full_collide.call(this, self.is_collide(floor, true))
         }
 
-        // Handle all the momentums
+        // Handle callbacks
+        var was_m = this.is_m();
 
+        // Handle all the momentums
+        if (!this.next_frame.momentum_x)
+        {
+          if (pos_info.hit_floor)
+            this.momentum_x -= 2
+          else
+            this.momentum_x -= 1
+          this.momentum_x = Math.max(this.momentum_x, 0)
+        }
+        else
+        {
+          this.momentum_x += this.next_frame.momentum_x
+        }
+
+        if (pos_info.hit_wall)
+        {
+          this.momentum_x = 0
+        }
+
+        this.momentum_x = Math.min(this.momentum_x, this.max_speed)
+
+        if (pos_info.hit_floor)
+        {
+          this.momentum_y = 0
+          this.current_j = 0
+        }
+        if (pos_info.hit_ceiling)
+        {
+          this.momentum_y = 0
+          this.current_j = this.max_jump
+        }
+
+        var at_max_jump = this.current_j >= this.max_jump
+        if (!this.next_frame.momentum_y || at_max_jump)
+        {
+          this.current_j = this.max_jump
+          this.momentum_y -= 1
+          this.momentum_y = Math.max(this.momentum_y, this.gravity)
+        }
+        else
+        {
+          this.momentum_y += this.next_frame.momentum_y
+        }
+
+        /*
+        if (!m_stats.was_m && m_stats.is_m)
+          this.callback.start_m.call(this)
+
+        if (m_stats.was_m && !m_stats.is_m)
+          this.callback.end_m.call(this)
+
+        if (!m_stats.was_j && m_stats.is_j)
+          this.callback.start_j.call(this)
+
+        if (m_stats.was_j && !m_stats.is_j)
+          this.callback.end_j.call(this)
+          */
+
+
+
+
+
+        /*
         // Enact gravity
-        if (this.last_frame.momentum_j == this.momentum_j)
+        if (this.last_frame.momentum_y == this.momentum_y)
         {
           // If they stopped jumping, they have jumped max
           this.current_j = this.max_jump
 
           if (!pos_info.hit_floor)
           {
-            this.momentum_j -= 1
-            this.momentum_j = Math.max(this.momentum_j, this.gravity)
+            this.momentum_y -= 1
+            this.momentum_y = Math.max(this.momentum_y, this.gravity)
           }
 
           // Don't let the momentum reduction run, we've taken care of it
-          this.last_frame.momentum_j = 0
+          this.last_frame.momentum_y = 0
         }
 
         var m_stats = {
-          is_m: this.momentum_l != 0 || this.momentum_r != 0,
-          is_j: this.momentum_j != 0,
+          is_m: this.momentum_x != 0,
+          is_j: this.momentum_y != 0,
           was_m: this.last_frame.was_m,
           was_j: this.last_frame.was_j
         }
@@ -422,9 +570,8 @@
 
         if (this.flags.reduce_momentum)
         {
-          reduce("momentum_j", 1)
-          reduce("momentum_l", 1.5)
-          reduce("momentum_r", 1.5)
+          reduce("momentum_y", 1)
+          reduce("momentum_x", 2)
         }
 
         this.last_frame.was_m = m_stats.is_m
@@ -442,6 +589,7 @@
 
         if (m_stats.was_j && !m_stats.is_j)
           this.callback.end_j.call(this)
+        */
 
         this.callback.frame.call(this)
 
@@ -455,6 +603,12 @@
         {
           self.callback.sprite_done.call(self);
         });
+
+        this.next_frame = {
+          momentum_x: false,
+          momentum_y: false,
+        }
+
       }
     })
 
@@ -480,7 +634,7 @@
         }, attack_obj);
 
         if (!$.isFunction(attack_obj.collide))
-          throw "Must pass a collide test for attack";
+          throw new Error("Must pass a collide test for attack");
 
         attack_obj.relative_x = null
         attack_obj.relative_y = null
@@ -529,18 +683,11 @@
 
         if (attack_obj.speed != undefined)
         {
-          if (this.flags.facing_left == true)
-          {
-            new_phys.momentum_l = attack_obj.speed
-          }
-          else
-          {
-            new_phys.momentum_r = attack_obj.speed
-          }
+          new_phys.momentum_x = attack_obj.speed
         }
         if (attack_obj.fall != undefined)
         {
-          new_phys.momentum_j = attack_obj.fall
+          new_phys.momentum_y = attack_obj.fall
         }
 
         /*
