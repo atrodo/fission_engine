@@ -243,6 +243,14 @@
                   fail_slope = false
               }
 
+              // br
+              if (tile.angle_br && i == floor(this.x + this.xw) && j == floor(this.y))
+              {
+                var slope = (this.y - j) / ((this.x + this.xw) - i)
+                if (slope > 1)
+                  fail_slope = false
+              }
+
               if (fail_slope)
               {
                 if (full)
