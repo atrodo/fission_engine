@@ -332,9 +332,9 @@
         var x_dir = this.flags.facing_left ? -1 : 1
         var y_dir = this.momentum_y <= 0 ? -1 : 1
 
-        var distance = sub_pixel * this.momentum_x
+        var x_distance = abs(sub_pixel * this.momentum_x)
+        var y_distance = abs(sub_pixel * this.momentum_y)
 
-        var was_on_floor = false
         var facing_left = this.flags.facing_left
 
         // Check to see if they were on the floor
@@ -349,102 +349,87 @@
           this.y += sub_pixel
         }
 
-        var handle_slope = function(distance)
+        // While the x_distance is non-zero,
+        while (x_distance > 0)
         {
-          if (distance == 0)
-            return 0
+          // Move them no more than 1 tile = distance
+          var distance = min(x_distance, 1);
+          this.x += x_dir * distance
+          x_distance -= distance
 
-          var tile = self.chunk.get_phys(self.x, self.y)
-          if (was_on_floor && tile)
+          // If they started on the floor
+          if (was_on_floor)
           {
-            if (tile.angle_bl || tile.angle_br)
+            var move_y = 0
+            var move_slope_y_dir = -1
+            var was_colliding = self.is_collide()
+
+            if (was_colliding)
+              move_slope_y_dir = 1
+
+            // Attempt to move them y no more than distance
+            while (move_y <= distance)
             {
-              // Keep them on the floor
-              var x_distance = min((self.x - floor(self.x)), distance)
-              if (x_distance == 0)
-                x_distance = distance
+              this.y += move_slope_y_dir * sub_pixel
+              if (self.is_collide() != was_colliding)
+                break;
+              move_y += sub_pixel
+            }
 
-              var slope_dir = 1
-              if (tile.angle_bl && !facing_left)
-                slope_dir = -1
+            if (move_y > distance)
+            {
+              // If they don't hit the floor (check +subpixel), undo y movement
+              this.y -= move_slope_y_dir * distance
+            }
 
-              if (tile.angle_br && facing_left)
-                slope_dir = -1
-
-              self.y += x_distance * slope_dir
-              return x_distance
+            if (self.is_collide())
+            {
+              // If they are currently collide, backup 1 subpixel
+              this.y -= move_slope_y_dir * sub_pixel
             }
           }
 
-          return distance
-        }
-
-        while (distance > 1)
-        {
-          var x_distance = handle_slope(1)
-
-          this.x += x_dir * x_distance
-          distance -= x_distance
+          // Then check collision. Collision means they've hit a wall
           if (self.is_collide())
-            distance = 0
+          {
+            result.hit_wall = true
+            break;
+          }
         }
-
-        this.x += x_dir * handle_slope(distance)
 
         while (self.is_collide())
         {
           this.x -= x_dir * sub_pixel
-          result.hit_wall = true
         }
 
-        distance = abs(sub_pixel * this.momentum_y)
+        var old_y_pos = this.y
 
-        while (distance > 1)
+        // Move them the y_distance stepping at most 1 tile
+        while (y_distance > 0)
         {
-          this.y += y_dir * 1
-          distance -= 1
-          if  (y_dir > 0)
-            this.current_j += y_dir * 1
-          if (self.is_collide())
-            distance = 0
-        }
+          // Move them no more than 1 tile = distance
+          var distance = min(y_distance, 1);
+          this.y += y_dir * distance
+          y_distance -= distance
 
-        this.y += y_dir * distance
-        if  (y_dir > 0)
-          this.current_j += y_dir * distance
+          // Then check collision. Collision means they've hit the floor
+          if (self.is_collide())
+          {
+            if (y_dir > 0)
+              result.hit_ceiling = true
+            else
+              result.hit_floor = true
+            break;
+          }
+        }
 
         while (self.is_collide())
         {
           this.y -= y_dir * sub_pixel
-          if (y_dir > 0)
-            result.hit_ceiling = true
-          else
-            result.hit_floor = true
         }
 
-        /*
-        if (this.momentum_y > 0)
-        {
-          while (this.y > old_pos.y)
-          {
-            if (!self.is_collide(ceil))
-              break;
-            this.y = ceil(this.y - 1)
-            this.momentum_y = 0
-            this.current_j = this.max_jump
-          }
-        } else if (this.momentum_y < 0) {
-          while (this.y < old_pos.y)
-          {
-            if (!self.is_collide(floor))
-              break;
-            this.y = floor(this.y + 1)
-            this.momentum_y = 0
-            this.current_j = 0
-            hit_floor = true
-          }
-        }
-        */
+        if  (y_dir > 0)
+          this.current_j += this.y - old_y_pos
 
         return result
       },
