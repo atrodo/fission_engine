@@ -17,3 +17,11 @@ var timings = {}
     [% content %]
   [% END %]
 [% END %]
+
+[% BLOCK scope %]
+  ;
+  (function()
+  {
+    [% content %]
+  })();
+[% END %]
