@@ -31,7 +31,6 @@
     var physics_timing = 40
 
     [% IF show_timings %]
-    var timings = {}
     var fps_span = $("<span/>")
     var fps = function()
     {
@@ -434,19 +433,3 @@
 
   }
   var runtime = new Runtime()
-
-[% BLOCK per_second %]
-  [% DEFAULT name="Misc" %]
-  [% IF show_timings %]
-    if (timings["[% name %]"] == undefined)
-      timings["[% name %]"] = {time: 0, done: 0}
-    var timing_start = Date.now();
-
-    [% content %]
-
-    timings["[% name %]"].time += Date.now() - timing_start;
-    timings["[% name %]"].done++
-  [% ELSE %]
-    [% content %]
-  [% END %]
-[% END %]

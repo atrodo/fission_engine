@@ -1,0 +1,19 @@
+[% IF show_timings %]
+var timings = {}
+[% END %]
+
+[% BLOCK per_second %]
+  [% DEFAULT name="Misc" %]
+  [% IF show_timings %]
+    if (timings["[% name %]"] == undefined)
+      timings["[% name %]"] = {time: 0, done: 0}
+    var timing_start = Date.now();
+
+    [% content %]
+
+    timings["[% name %]"].time += Date.now() - timing_start;
+    timings["[% name %]"].done++
+  [% ELSE %]
+    [% content %]
+  [% END %]
+[% END %]

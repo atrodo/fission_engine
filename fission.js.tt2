@@ -38,6 +38,7 @@
         END
     %]
 
+    [% PROCESS blocks.tt2 %]
 
     [% INCLUDE js/events.js %]
     [% INCLUDE js/lprng.js %]
