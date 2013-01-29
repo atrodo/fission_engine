@@ -4,6 +4,48 @@
   var paint_chunks = function() { throw "Must call paint_chunks after onReady" };
   var paint_one = function(chunk_x, chunk_y) { throw "Must call paint_one after onReady" };
 
+  var Gfx = function(xw, yh)
+  {
+    [% WRAPPER per_second name="Canvas allocs" %]
+      var self = this
+      self.canvas = $("<canvas/>")
+        .attr("width", xw)
+        .attr("height", yh)
+        .get(0)
+
+      self.context = self.canvas.getContext("2d")
+
+      self.clear = function()
+      {
+        self.context.clearRect(0, 0, this.xw, this.yh)
+        return self
+      }
+
+      self.reset = function()
+      {
+        self.clear()
+        var c = self.context
+        c.beginPath()
+        c.globalAlpha = 1
+        c.globalCompositeOperation = 'source-over'
+        c.fillStyle = '#000'
+        c.strokeStyle = '#000'
+        c.font = '10px sans-serif'
+        c.setTransform(1, 0, 0, 1, 0, 0)
+
+        return self
+      }
+
+      self.full_reset = function()
+      {
+        self.width = self.width
+        return self
+      }
+
+    [% END %]
+    return self;
+  }
+
   $(function()
   {
     var status = $("<div/>")
