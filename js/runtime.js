@@ -163,12 +163,20 @@
       try
       {
         context.save()
-        context.translate(-cou.x * tiles.tiles_xw >> 3, cou.y * tiles.tiles_yh >> 3)
-        context.drawImage(
-          preload_images.background,
-          0,
-          -500
-        )
+        $.each(runtime.events.emit("background_draw", cou), function()
+        {
+          var backgrounds = this
+          if (!$.isArray(backgrounds))
+            backgrounds = [backgrounds]
+          $.each(backgrounds, function(i, bg)
+          {
+            try
+            {
+              draw_animation(context, cou, bg);
+            } catch(e) { console.log(e) };
+          })
+        })
+
         context.restore()
 
         context.save()
@@ -296,6 +304,8 @@
 
         context.save()
 
+      } catch (e) {
+        console.log("exception:", e)
       } finally {
         context.restore()
       }
