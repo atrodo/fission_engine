@@ -176,22 +176,14 @@
 
       try
       {
-        context.save()
         $.each(runtime.events.emit('repaint.background', cou), function()
         {
           var backgrounds = this
           if (!$.isArray(backgrounds))
             backgrounds = [backgrounds]
-          $.each(backgrounds, function(i, bg)
-          {
-            try
-            {
-              draw_animation(context, cou, bg);
-            } catch(e) { console.log(e) };
-          })
+          draw_animations(context, cou, backgrounds)
         })
 
-        context.restore()
 
         context.save()
         context.translate(width * (1/2), height * (1/2))
