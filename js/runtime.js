@@ -41,15 +41,14 @@
       for (var i = 0; i < timing_names.length; i++)
       {
         var name = timing_names[i]
-        var timing = timings[name]
+        var timing = timings[name] || { done: 0, time: 0}
         fps_span
           .append(" " + name + " Per Second: " + timing.done)
           .append(" " + name + " total ms: " + timing.time)
           .append(" " + name + " avg ms: " + floor(timing.time / timing.done))
           .append("<br/>")
+        timings[name] = null
       }
-
-      timings = {}
     }
     var fps_interval     = setInterval(fps, 1000);
     [% END %]
