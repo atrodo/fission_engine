@@ -77,6 +77,42 @@
     var cou_source
     var _last_cou
 
+    var draw_animation = function(context, cou, anim)
+    {
+      if (!(anim instanceof Animation))
+        throw new Error("Can only draw an Animation")
+
+      context.save()
+
+      try
+      {
+        var x = anim.frame_x
+        var y = anim.frame_y
+
+        if (x == undefined)
+          x = ((anim.x - cou.x) * tiles.tiles_xw)
+        if (y == undefined)
+          y = ((anim.y - cou.y) * tiles.tiles_yh)
+
+        var img = anim.get_gfx()
+        context.drawImage(
+          anim.get_gfx().canvas,
+          x - anim.trim_s,
+          y - anim.trim_b,
+          anim.xw,
+          anim.yh
+        )
+      }
+      catch (e)
+      {
+        console.log("exception:", e)
+      }
+      finally
+      {
+        context.restore()
+      }
+    }
+
     var repaint = function()
     {
       [% WRAPPER per_second name="Frame" %]
