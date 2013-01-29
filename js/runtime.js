@@ -184,29 +184,17 @@
           draw_animations(context, cou, backgrounds)
         })
 
-
         context.save()
         context.translate(width * (1/2), height * (1/2))
-        context.translate(-trans_x + -cou.x * tiles.tiles_xw, trans_y + cou.y * tiles.tiles_yh)
         context.scale(1, -1)
 
-        var mul_x = tiles.tiles_xw * chunks.chunk_xw
-        var mul_y = tiles.tiles_yh * chunks.chunk_yh
-
-        for (var painted_chunk in loaded_chunks)
+        $.each(runtime.events.emit('repaint.chunks_bg', cou), function()
         {
-          painted_chunk = loaded_chunks[painted_chunk]
-          context.drawImage(
-            painted_chunk.data,
-            painted_chunk.x * mul_x,
-            painted_chunk.y * mul_y
-          )
-        }
-
-        context.restore()
-        context.save()
-        context.translate(width * (1/2), height * (1/2))
-        context.scale(1, -1)
+          var paints = this
+          if (!$.isArray(paints))
+            paints = [paints]
+          draw_animations(context, cou, paints)
+        })
 
         for (var phy_obj in all_physics)
         {
@@ -264,25 +252,13 @@
           }
         }
 
-        context.restore()
-
-        context.save()
-        context.translate(width * (1/2), height * (1/2))
-        context.translate(-trans_x + -cou.x * tiles.tiles_xw, trans_y + cou.y * tiles.tiles_yh)
-        context.scale(1, -1)
-
-        var mul_x = tiles.tiles_xw * chunks.chunk_xw
-        var mul_y = tiles.tiles_yh * chunks.chunk_yh
-
-        for (var painted_chunk in loaded_chunks)
+        $.each(runtime.events.emit('repaint.chunks_fg', cou), function()
         {
-          painted_chunk = loaded_chunks[painted_chunk]
-          context.drawImage(
-            painted_chunk.fg,
-            painted_chunk.x * mul_x,
-            painted_chunk.y * mul_y
-          )
-        }
+          var paints = this
+          if (!$.isArray(paints))
+            paints = [paints]
+          draw_animations(context, cou, paints)
+        })
 
         context.restore()
 
