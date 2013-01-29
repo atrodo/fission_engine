@@ -20,6 +20,8 @@
       },
       emit: function(type)
       {
+        var result = []
+
         if (!$.isArray(listeners[type]))
           listeners[type] = []
 
@@ -27,8 +29,10 @@
         var cbs = listeners[type].slice()
         while (cbs.length > 0)
         {
-          cbs.shift().apply(this, args)
+          result.push(cbs.shift().apply(this, args))
         }
+
+        return result
       },
       off: function(type, cb)
       {
