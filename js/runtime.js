@@ -163,7 +163,7 @@
       try
       {
         context.save()
-        $.each(runtime.events.emit("background_draw", cou), function()
+        $.each(runtime.events.emit('repaint.background', cou), function()
         {
           var backgrounds = this
           if (!$.isArray(backgrounds))
