@@ -113,6 +113,20 @@
       }
     }
 
+    var draw_animations = function(context, cou, anims)
+    {
+      if (!$.isArray(anims))
+        throw new Error("Must pass an array to 'draw_animations'");
+
+      $.each(anims, function(i, anim)
+      {
+        try
+        {
+          draw_animation(context, cou, anim);
+        } catch(e) { console.log(e) };
+      })
+    }
+
     var repaint = function()
     {
       [% WRAPPER per_second name="Frame" %]
