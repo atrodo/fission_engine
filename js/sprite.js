@@ -10,18 +10,24 @@
       frame_inc: 1/8,
       can_interrupt: true,
       loop: true,
+
+      frame_x: null,
+      frame_y: null,
+      x: 0,
+      y: 0,
       xw: 10,
       yh: 10,
+
       center: 5,
       trim_s: 0,
       trim_b: 0,
     }, options);
 
-    if ($.type(this.name) != "string")
-      throw "Must provide an animation name";
-
     this._img = this.img;
     this.img = null;
+
+    if (this.get_gfx != undefined)
+      this.get_img = this.get_gfx;
 
     if (!$.isFunction(this.get_img))
     {
