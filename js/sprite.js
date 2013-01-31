@@ -8,6 +8,7 @@
 
       frames: 1,
       frame_inc: 1/8,
+      frame: 0,
       can_interrupt: true,
       loop: true,
 
@@ -43,6 +44,27 @@
       {
         return this._img;
       }
+
+      var gfx = new Gfx(this.xw, this.yh)
+      this.get_gfx = function()
+      {
+        gfx.reset()
+        var c = gfx.context
+
+        c.drawImage(
+          this._img,
+          floor(this.frame) * this.xw,
+          0,
+          this.xw,
+          this.yh,
+          0,
+          0,
+          this.xw,
+          this.yh
+        )
+
+        return gfx
+      }
     }
   }
 
@@ -55,7 +77,6 @@
 
       current: null,
       next: null,
-      frame: 0,
 
       isa_clone: false,
     }, options);
@@ -95,7 +116,7 @@
 
         current_frame: function()
         {
-          return floor(this.frame)
+          return floor(this.current.frame)
         },
 
         set_next: function(next)
@@ -120,8 +141,8 @@
 
         next_frame: function(done_cb)
         {
-          this.frame += this.current.frame_inc || 1
-          if (this.frame >= this.current.frames)
+          this.current.frame += this.current.frame_inc || 1
+          if (this.current.frame >= this.current.frames)
           {
             if ($.isFunction(done_cb))
               done_cb.call(this)
@@ -139,9 +160,9 @@
 
             if (this.current == next)
             {
-              this.frame -= this.current.frames
+              this.current.frame -= this.current.frames
             } else {
-              this.frame = 0
+              this.current.frame = 0
             }
 
             this.current = next
@@ -152,7 +173,7 @@
             if (this.next != this.current)
             {
               this.current = this.next
-              this.frame = 0
+              this.current.frame = 0
             }
             this.next = null
           }
