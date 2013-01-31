@@ -109,6 +109,16 @@
           anim.xw,
           anim.yh
         )
+
+        [% IF show_draw_box %]
+        context.strokeStyle = "rgba(255, 0, 165, 0.5)"
+        context.strokeRect(
+          x - anim.trim_s,
+          y - anim.trim_b,
+          anim.xw,
+          anim.yh
+        )
+        [% END %]
       }
       catch (e)
       {
