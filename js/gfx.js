@@ -17,7 +17,7 @@
 
       self.clear = function()
       {
-        self.context.clearRect(0, 0, this.xw, this.yh)
+        self.context.clearRect(0, 0, xw, yh)
         return self
       }
 
