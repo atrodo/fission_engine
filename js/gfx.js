@@ -6,7 +6,7 @@
 
   var Gfx = function(xw, yh)
   {
-    [% WRAPPER per_second name="Canvas allocs" %]
+    [% WRAPPER per_second name="New Gfxs" %]
       var self = this
       self.canvas = $("<canvas/>")
         .attr("width", xw)
