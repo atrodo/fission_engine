@@ -2,6 +2,7 @@
 
   function Animation(options)
   {
+    [% WRAPPER per_second name="New Animations" %]
     $.extend(this, {
       name: null,
       img: null,
@@ -67,6 +68,7 @@
         return gfx
       }
     }
+    [% END %]
   }
 
   function Sprite(options)
