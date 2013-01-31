@@ -34,19 +34,29 @@
     var fps_span = $("<span/>")
     var fps = function()
     {
+      var table = $("<table class='table table-striped table-condensed'/>")
       fps_span
         .empty()
+        .append(table)
+
+      table.append($("<tr/>")
+        .append($("<th/>").text("Metric"))
+        .append($("<th/>").text("Per Second"))
+        .append($("<th/>").text("Total (ms)"))
+        .append($("<th/>").text("Avg (ms)"))
+      )
 
       var timing_names = Object.keys(timings).sort()
       for (var i = 0; i < timing_names.length; i++)
       {
         var name = timing_names[i]
         var timing = timings[name] || { done: 0, time: 0}
-        fps_span
-          .append(" " + name + " Per Second: " + timing.done)
-          .append(" " + name + " total ms: " + timing.time)
-          .append(" " + name + " avg ms: " + floor(timing.time / timing.done))
-          .append("<br/>")
+        table.append($("<tr/>")
+          .append($("<th/>").text(name))
+          .append($("<th/>").text(timing.done))
+          .append($("<th/>").text(timing.time))
+          .append($("<th/>").text(floor(timing.time / timing.done)))
+        )
         timings[name] = null
       }
     }
@@ -66,11 +76,10 @@
 
     content
       .empty()
+      .append(canvas)
       [% IF show_timings %]
       .append(fps_span)
-      .append("<br/>")
       [% END %]
-      .append(canvas)
 
     // Center of universe
     var cou_source
