@@ -202,16 +202,16 @@
           try
           {
             var phys = all_physics[phy_obj]
-            var sprite = phys.sprite.current
+            var anim = phys.sprite.current
+            anim.x = phys.x
+            anim.y = phys.y
+            anim.flip_xw = phys.flags.facing_left;
+            draw_animation(context, cou, anim);
 
+            [% IF show_phys_box %]
             var x = (phys.x - cou.x) * tiles.tiles_xw
             var y = (phys.y - cou.y) * tiles.tiles_yh
 
-            // If they are too far off the screen, don't bother with them
-            if (Math.abs(x) > width * 2 || Math.abs(y) > height * 2)
-              continue
-
-            [% IF show_phys_box %]
             context.strokeStyle = "rgba(255, 165, 0, 0.5)"
             context.strokeRect(
               x,
@@ -220,30 +220,10 @@
               phys.yh * tiles.tiles_yh
             )
             [% END %]
-
-            if (phys.flags.facing_left)
-            {
-              context.scale(-1, 1)
-              context.translate(-sprite.center, 0)
-              x = -x
-            }
-
-            context.drawImage(
-              phys.sprite.img(),
-              phys.sprite.current_frame() * sprite.xw,
-              0,
-              sprite.xw,
-              sprite.yh,
-              x - sprite.trim_s,
-              y - sprite.trim_b,
-              sprite.xw,
-              sprite.yh
-            )
           }
           catch (e)
           {
             console.log("exception:", e)
-            //console.log(" ==> ", e.get_stack())
           }
           finally
           {
