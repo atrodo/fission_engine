@@ -94,6 +94,14 @@
           y = ((anim.y - cou.y) * tiles.tiles_yh)
 
         var img = anim.get_gfx()
+
+        if (anim.flip_xw)
+        {
+          context.scale(-1, 1)
+          context.translate(-anim.center, 0)
+          x = -x
+        }
+
         context.drawImage(
           anim.get_gfx().canvas,
           x - anim.trim_s,
