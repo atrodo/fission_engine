@@ -28,10 +28,6 @@
         momentum_y: false,
         momentum_x: false,
       },
-      last_frame: {
-        was_m: false,
-        was_j: false,
-      },
 
       sprite: null,
       input: new Input(),
@@ -317,11 +313,6 @@
         else
           relative_x = -relative_x - this.xw
 
-        /*
-        this.x = owner.x + (relative_x < 0 ? relative_x - this.xw : relative_x);
-        this.y = owner.y + (relative_y < 0 ? relative_y - this.yh : relative_y);
-        */
-
         this.x = owner.x + relative_x;
         this.y = owner.y + relative_y;
 
@@ -448,6 +439,12 @@
         var self = this
 
         var pos_info = { hit_floor: false }
+        var m_stats = {}
+
+        m_stats = $.extend(m_stats, {
+          was_m: this.momentum_x != 0,
+          was_j: this.momentum_y != 0,
+        })
 
         // Move the object and check collision
         if ( !this.set_pos_relative(this.relative_x, this.relative_y) )
@@ -508,69 +505,11 @@
           this.momentum_y += this.next_frame.momentum_y
         }
 
-        /*
-        if (!m_stats.was_m && m_stats.is_m)
-          this.callback.start_m.call(this)
-
-        if (m_stats.was_m && !m_stats.is_m)
-          this.callback.end_m.call(this)
-
-        if (!m_stats.was_j && m_stats.is_j)
-          this.callback.start_j.call(this)
-
-        if (m_stats.was_j && !m_stats.is_j)
-          this.callback.end_j.call(this)
-          */
-
-
-
-
-
-        /*
-        // Enact gravity
-        if (this.last_frame.momentum_y == this.momentum_y)
-        {
-          // If they stopped jumping, they have jumped max
-          this.current_j = this.max_jump
-
-          if (!pos_info.hit_floor)
-          {
-            this.momentum_y -= 1
-            this.momentum_y = Math.max(this.momentum_y, this.gravity)
-          }
-
-          // Don't let the momentum reduction run, we've taken care of it
-          this.last_frame.momentum_y = 0
-        }
-
-        var m_stats = {
+        m_stats = $.extend(m_stats, {
           is_m: this.momentum_x != 0,
           is_j: this.momentum_y != 0,
-          was_m: this.last_frame.was_m,
-          was_j: this.last_frame.was_j
-        }
+        })
 
-        // Reduce momentum
-        var reduce = function(key, amount)
-        {
-          if (self.last_frame[key] == self[key])
-          {
-            self[key] -= amount
-            self[key] = Math.max(self[key], 0)
-          }
-          self.last_frame[key] = self[key]
-        }
-
-        if (this.flags.reduce_momentum)
-        {
-          reduce("momentum_y", 1)
-          reduce("momentum_x", 2)
-        }
-
-        this.last_frame.was_m = m_stats.is_m
-        this.last_frame.was_j = m_stats.is_j
-
-        // Handle callbacks
         if (!m_stats.was_m && m_stats.is_m)
           this.callback.start_m.call(this)
 
@@ -582,7 +521,6 @@
 
         if (m_stats.was_j && !m_stats.is_j)
           this.callback.end_j.call(this)
-        */
 
         this.callback.frame.call(this)
 
