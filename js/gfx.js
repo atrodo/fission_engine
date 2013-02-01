@@ -250,8 +250,9 @@
       if (chunk == undefined)
         return
 
-      var xw = tiles.tiles_rxw * chunks.chunk_xw
-      var yh = tiles.tiles_ryh * chunks.chunk_yh
+      // TODO: This cuts off each chunk edge by tiles.tiles_bd
+      var xw = tiles.tiles_xw * chunks.chunk_xw
+      var yh = tiles.tiles_yh * chunks.chunk_yh
 
       var scratch_bg = new Gfx(xw, yh)
       var scratch_fg = new Gfx(xw, yh)
@@ -372,25 +373,34 @@
     {
       var result = []
 
-      var xw = tiles.tiles_rxw * chunks.chunk_xw
-      var yh = tiles.tiles_ryh * chunks.chunk_yh
+      var xw = tiles.tiles_xw * chunks.chunk_xw
+      var yh = tiles.tiles_yh * chunks.chunk_yh
       var mul_x = chunks.chunk_xw
       var mul_y = chunks.chunk_yh
 
+      var min_xw = cou.x - [% width / 2 %] / tiles.tiles_xw
+      var max_xw = cou.x + [% width / 2 %] / tiles.tiles_xw
+
       $.each(loaded_chunks, function(i, painted_chunk)
       {
-        result.push(
-          new Animation({
-            xw: xw,
-            yh: yh,
-            x: painted_chunk.x * mul_x,
-            y: painted_chunk.y * mul_y,
-            get_gfx: function()
-            {
-              return painted_chunk[field]
-            },
-          })
-        )
+        var x = painted_chunk.x * mul_x
+        var y = painted_chunk.y * mul_y
+
+        if (x <= max_xw && x + mul_x >= min_xw)
+        {
+          result.push(
+            new Animation({
+              xw: xw,
+              yh: yh,
+              x: x,
+              y: y,
+              get_gfx: function()
+              {
+                return painted_chunk[field]
+              },
+            })
+          )
+        }
       })
 
       return result
