@@ -4,29 +4,33 @@
 
   window.Engine = function(content)
   {
-    [% max_do_aux           = 50 %]
-    [% max_mons             = 0 %]
-    [% show_phys_box        = 0 %]
-    [% preload_interval     = 500 %]
-    [% paint_chunk_interval = 500 %]
-    [% chunk_draw_range     = 7 %]
+    [% DEFAULT
+      width  = 640
+      height = 480
 
-    [% record       = 0 %]
-    [% debug        = 0 %]
-    [% show_map     = 0 %]
-    [% engine_input = 0 %]
-    [% show_timings = 0 %]
+      max_do_aux           = 50
+      show_phys_box        = 1
+      show_draw_box        = 1
+      preload_interval     = 500
+      paint_chunk_interval = 50
+      chunk_draw_range     = 7
 
-    [% tiles_bd = 4 %]
-    [% tiles_xw = 20 %]
-    [% tiles_yh = 20 %]
-    [% chunk_xw = 32 %]
-    [% chunk_yh = 24 %]
-    [% map_xw   = 64 * 9 %]
-    [% map_yh   = 64 * 4 %]
+      record       = 0
+      debug        = 0
+      show_map     = 0
+      engine_input = 1
+      show_timings = 1
 
-    [% game_prefix = 'bifission' %]
-    [% game_js = "${game_prefix}_js" %]
+      tiles_bd = 4
+      tiles_xw = 16
+      tiles_yh = 16
+      chunk_xw = 32
+      chunk_yh = 24
+
+      game_prefix = 'new_game'
+      game_js = "${game_prefix}_js"
+    %]
+
     [%
       MACRO INCLUDE_MAYBE(file)
         TRY ;
