@@ -4,6 +4,7 @@
 
   window.Engine = function(content)
   {
+    [% PROCESS setup.tt2 %]
     [% DEFAULT
       width  = 640
       height = 480
@@ -27,7 +28,7 @@
       chunk_xw = 32
       chunk_yh = 24
 
-      game_prefix = 'new_game'
+      game_prefix = game.name.lower.replace('\W+', '_') || 'new_game'
       game_js = "${game_prefix}_js"
     %]
 
