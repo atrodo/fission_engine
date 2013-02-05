@@ -4,6 +4,8 @@
 
   window.Engine = function(content)
   {
+    var engine = this;
+
     [% PROCESS setup.tt2 %]
     [% DEFAULT
       width  = 640
