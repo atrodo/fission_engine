@@ -23,7 +23,12 @@
   {
     var self = this;
 
-    var tile_info = init.tile_info || {};
+    var default_tile_info = {
+      0: { solid: false },
+      1: { solid: true },
+    }
+
+    var tile_info = init.tile_info || default_tile_info
     delete init.tile_info;
 
     $.extend(self, {
@@ -34,26 +39,46 @@
       tiles_xw: 10,
       tiles_yh: 10,
 
-      tiles_rxw: 10,
-      tiles_ryh: 10,
+      tiles_rxw: null,
+      tiles_ryh: null,
     }, init)
 
     self.loaded = false;
 
-    $.each(tile_info, function(i, v)
-    {
-      if (!$.isNumeric(i))
-        return;
+    self.tiles_rxw = self.tiles_xw + (2 * self.tiles_bd)
+    self.tiles_ryh = self.tiles_yh + (2 * self.tiles_bd)
 
-      self[i] = new Tile(v)
-    })
-
-    var split_tiles = function(img, attr)
+    self.add_tile_info = function(additional)
     {
+      $.each(additional, function(i, v)
+      {
+        if (!$.isNumeric(i))
+          return;
+
+        self[i] = new Tile(v)
+      })
+
+      if ( self.loaded )
+      {
+        do_splits()
+      }
+    }
+
+    var do_splits = function()
+    {
+      self.loaded = true;
+      split_tiles("background")
+      split_tiles("foreground")
+      runtime.events.emit('tiles_done', self);
+    }
+
+    var split_tiles = function(attr)
+    {
+      var gfx = self[attr]
       var tiles_on_dom = $("<div/>")
         .appendTo(content)
 
-      img = img.get(0)
+      var img = gfx.canvas
 
       var tiles_count_x = (img.width  / self.tiles_rxw) | 0
       var tiles_count_y = (img.height / self.tiles_ryh) | 0
@@ -121,26 +146,17 @@
         }
     }
 
-    var set_loaded = function()
-    {
-      if ( $.type( self.foreground ) != "string"
-        && $.type( self.background ) != "string" )
+    $.when(
+      new Gfx().preload(self.background, false).then(function(gfx)
       {
-        self.loaded = true;
-        runtime.events.emit('tiles_done', self);
-      }
-    }
-
-    preload(self.background, function(img) {
-      self.background = img;
-      split_tiles(img, "background")
-      set_loaded()
-    }, false)
-    preload(self.foreground, function(img) {
-      self.foreground = img;
-      split_tiles(img, "foreground")
-      set_loaded()
-    }, false)
+        self.background = gfx;
+      }),
+      new Gfx().preload(self.background, false).then(function(gfx)
+      {
+        self.foreground = gfx;
+      })
+    )
+    .then(do_splits);
   }
 
 
