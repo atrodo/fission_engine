@@ -27,6 +27,9 @@
       tiles_bd = 4
       tiles_xw = 16
       tiles_yh = 16
+      tiles_bg = "background.png"
+      tiles_fg = "foreground.png"
+
       chunk_xw = 32
       chunk_yh = 24
 
@@ -48,6 +51,8 @@
     [% PROCESS blocks.tt2 %]
 
     [% INCLUDE js/events.js %]
+    engine.events = new Events()
+
     [% INCLUDE js/lprng.js %]
     [% INCLUDE js/physics.js %]
     [% INCLUDE js/tiles.js %]

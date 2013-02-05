@@ -23,7 +23,18 @@
       width:  640,
       height: 480,
 
-      events: new Events(),
+      chunks: new Chunks(),
+      events: engine.events,
+
+      tiles:  new Tiles({
+        background: "[% tiles_bg %]",
+        foreground: "[% tiles_fg %]",
+
+        tiles_bd: [% tiles_bd %],
+        tiles_xw: [% tiles_xw %],
+        tiles_yh: [% tiles_yh %],
+      })
+
     }, options);
 
     var self = this;
