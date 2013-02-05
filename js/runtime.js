@@ -368,6 +368,11 @@
       }
     }
 
+    var paint_chunks = function()
+    {
+      runtime.events.emit('loader.paint_chunks')
+    }
+
     var chunks_interval  //= setInterval(paint_chunks, 1000);
     var phys_interval    //= setInterval(physics, physics_timing);
     var process_painting = false
@@ -443,8 +448,10 @@
 
     self.events.on('preload_done', function()
     {
+      /*
       chunks.flush()
       paint_chunks()
+      */
       start_runtime()
     });
 
