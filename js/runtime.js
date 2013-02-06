@@ -93,8 +93,17 @@
       [% END %]
 
     // Center of universe
-    var cou_source
     var _last_cou
+
+    var get_cou = function()
+    {
+      var cou_source = runtime.events.call("runtime.cou_source") || {}
+      var cou = {
+        x: cou_source.x || 0,
+        y: cou_source.y || 0,
+      }
+      return cou;
+    }
 
     var draw_animation = function(context, cou, anim)
     {
@@ -168,10 +177,7 @@
     {
       [% WRAPPER per_second name="Frame" %]
 
-      var cou = {
-        x: cou_source.x,
-        y: cou_source.y,
-      }
+      var cou = get_cou()
 
       var chunk_x_mid = chunks.chunk_xw >> 1
       var chunk_y_mid = chunks.chunk_yh >> 1
@@ -405,20 +411,9 @@
       if (process_painting)
       try
       {
-        var x_offset = (_xw_trans / tiles.tiles_xw)
-        var y_offset = (_yh_trans / tiles.tiles_yh)
-
-        if (user.flags.facing_left)
-          x_offset = -x_offset
-
-        cou_source =
-        {
-          x: user.x ,//- x_offset,
-          y: user.y ,//- y_offset,
-        }
         repaint()
       }
-      catch (e) {}
+      catch (e) { warn(e) }
       anim_frame(frame_requested)
     }
     anim_frame(frame_requested)
