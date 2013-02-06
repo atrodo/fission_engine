@@ -37,16 +37,17 @@
       game_js = "${game_prefix}_js"
     %]
 
-    [%
-      MACRO INCLUDE_MAYBE(file)
+    [% BLOCK INCLUDE_MAYBE %]
+      [%
         TRY ;
           PROCESS "$file" ;
         CATCH file ;
           CLEAR ;
           GET "/* NOPE: $file */" ;
           GET "/* $error */" ;
-        END
-    %]
+        END ;
+      %]
+    [% END %]
 
     [% PROCESS blocks.tt2 %]
 
@@ -66,13 +67,10 @@
     [% INCLUDE js/misc.js %]
 
     [% WRAPPER scope %]
-      [% INCLUDE_MAYBE("$game_js/sprites.js") %]
-      [% INCLUDE_MAYBE("$game_js/game_setup.js") %]
-      [% INCLUDE_MAYBE("$game_js/game_runtime.js") %]
-
-      [% INCLUDE_MAYBE("$game_js/gen_foes.js") %]
-
-      [% INCLUDE_MAYBE("$game_js/chunk_gen.js") %]
+      [% PROCESS INCLUDE_MAYBE file="$game_js/sprites.js" %]
+      [% PROCESS INCLUDE_MAYBE file="$game_js/game_setup.js" %]
+      [% PROCESS INCLUDE_MAYBE file="$game_js/game_runtime.js" %]
+      [% PROCESS INCLUDE_MAYBE file="$game_js/chunk_gen.js" %]
     [% END %]
 
   }
