@@ -51,6 +51,7 @@
 
     [% PROCESS blocks.tt2 %]
 
+    [% INCLUDE js/misc.js %]
     [% INCLUDE js/events.js %]
     engine.events = new Events()
 
@@ -60,11 +61,11 @@
     [% INCLUDE js/chunks.js %]
     [% INCLUDE js/gfx.js %]
     [% INCLUDE js/hud.js %]
+    [% INCLUDE js/loader.js %]
     [% INCLUDE js/sprite.js %]
     [% INCLUDE js/ai.js %]
     [% INCLUDE js/runtime.js %]
     [% INCLUDE js/input.js %]
-    [% INCLUDE js/misc.js %]
 
     [% WRAPPER scope %]
       [% PROCESS INCLUDE_MAYBE file="$game_js/sprites.js" %]
