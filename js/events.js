@@ -34,6 +34,13 @@
 
         return result
       },
+      call: function(type)
+      {
+        var result = this.emit.apply(this, arguments)
+        if (result.length > 1)
+          warn("Too many results, choosing the first one")
+        return result[0]
+      },
       off: function(type, cb)
       {
         if (cb == undefined)
