@@ -24,14 +24,14 @@
       engine_input = 1
       show_timings = 1
 
-      tiles_bd = 4
+      tiles_bd = 0
       tiles_xw = 16
       tiles_yh = 16
       tiles_bg = "background.png"
       tiles_fg = "foreground.png"
 
-      chunk_xw = 32
-      chunk_yh = 24
+      chunk_xw = 40
+      chunk_yh = 30
 
       game_prefix = game.name.lower.replace('\W+', '_') || 'new_game'
       game_js = "${game_prefix}_js"
