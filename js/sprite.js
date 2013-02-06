@@ -30,7 +30,10 @@
     this.img = null;
 
     if (this.get_gfx != undefined)
+    {
+      this.gfx = new Gfx(this.xw, this.yh)
       this.get_img = this.get_gfx;
+    }
 
     if (!$.isFunction(this.get_img))
     {
