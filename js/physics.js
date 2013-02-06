@@ -17,8 +17,6 @@
       momentum_x: 0,
       current_j: 0,
 
-      chunk: null,
-
       // The physics that created this object
       owner: null,
       relative_x: null,
@@ -219,13 +217,12 @@
 
         var all_colide = []
 
-        if (this.chunk == undefined)
-          return;
+        var chunks = runtime.chunks
 
         for (var i = floor(this.x); i < this.x + this.xw; i++)
           for (var j = floor(this.y); j < this.y + this.yh; j++)
           {
-            var tile = this.chunk.get_phys(i, j)
+            var tile = chunks.get_phys(i, j)
             if (tile.solid)
             {
               // Check slope
@@ -250,7 +247,7 @@
               if (fail_slope)
               {
                 if (full)
-                  all_colide.push($.extend({x: i, y: j}, this.chunk.get(i, j)))
+                  all_colide.push($.extend({x: i, y: j}, chunks.get(i, j)))
                 else
                   return true
               }
@@ -578,7 +575,6 @@
 
         var frame_number = 0;
         var new_phys = new Physics({
-          chunk: this.chunk,
           owner: this,
 
           xw: attack_obj.xw,
