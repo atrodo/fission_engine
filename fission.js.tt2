@@ -21,6 +21,7 @@
       record       = 0
       debug        = 0
       show_map     = 0
+      show_tiles   = 0
       engine_input = 1
       show_timings = 1
 

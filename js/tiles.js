@@ -90,9 +90,6 @@
     var split_tiles = function(attr)
     {
       var gfx = self[attr]
-      var tiles_on_dom = $("<div/>")
-        .appendTo(content)
-
       var img = gfx.canvas
 
       var tiles_count_x = (img.width  / self.tiles_rxw) | 0
@@ -122,8 +119,8 @@
 
           context = result.getContext('2d')
 
-      context.translate(0, self.tiles_ryh)
-      context.scale(1, -1)
+          context.translate(0, self.tiles_ryh)
+          context.scale(1, -1)
 
           // Why is this so slow?
 
@@ -152,13 +149,27 @@
 
           //raw_tiles[entry] = scratch.get(0)
 
-          /*
-          tiles_on_dom.append("<br/>")
-          tiles_on_dom.append(raw_tiles[entry])
-          tiles_on_dom.append(entry)
-          */
 
         }
+
+      [% IF show_tiles %]
+      content.find("ul.tiles_on_dom").remove()
+      var tiles_on_dom = $("<ul/>")
+        .addClass("tiles_on_dom")
+        .appendTo(content)
+
+        $.each(self.all_tiles(), function(i, tile)
+        {
+          if (tile == undefined)
+            return;
+          tiles_on_dom
+            .append($("<li/>")
+              .append(i + ": ")
+              .append(tile.background)
+              .append(tile.foreground)
+            )
+        })
+      [% END %]
     }
 
     $.when(
