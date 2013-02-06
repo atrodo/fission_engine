@@ -63,3 +63,8 @@ var count_object_keys = function(obj)
 
   return result
 }
+
+var warn = function()
+{
+  console.log.apply(console, arguments)
+}
