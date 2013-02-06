@@ -385,13 +385,13 @@
       }
     }
 
-    var paint_chunks = function()
+    var maintaince = function()
     {
-      runtime.events.emit('loader.paint_chunks')
+      runtime.events.emit('runtime.maintaince', get_cou())
     }
 
-    var chunks_interval  //= setInterval(paint_chunks, 1000);
-    var phys_interval    //= setInterval(physics, physics_timing);
+    var maintain_interval
+    var phys_interval
     var process_painting = false
 
     var anim_frame =
@@ -426,7 +426,7 @@
       bot = Date.now()
       last_frame = bot
 
-      chunks_interval  = setInterval(paint_chunks, 1000);
+      maintain_interval  = setInterval(maintaince, 1000);
       phys_interval    = setInterval(physics, physics_timing);
       process_painting = true;
     }
@@ -434,7 +434,7 @@
     stop_runtime = function()
     {
       console.log("Runtime stopping")
-      clearInterval(chunks_interval)
+      clearInterval(maintain_interval)
       clearInterval(phys_interval)
       process_painting = false;
     }

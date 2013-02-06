@@ -272,6 +272,6 @@
       return repaint_chunks(cou, 'fg')
     })
 
-    runtime.events.on('loader.paint_chunks', paint_chunks);
+    engine.events.on('runtime.maintaince', paint_chunks);
     runtime.events.on('loader.paint_one_chunk', paint_one);
   [% END %]
