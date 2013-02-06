@@ -64,6 +64,21 @@
       }
     }
 
+    self.all_tiles = function()
+    {
+      var result = [];
+
+      $.each(self, function(i, tile)
+      {
+        if (!$.isNumeric(i))
+          return;
+
+        result[i] = tile;
+      })
+
+      return result
+    }
+
     var do_splits = function()
     {
       self.loaded = true;
