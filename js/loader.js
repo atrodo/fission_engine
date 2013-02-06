@@ -20,16 +20,20 @@
 
     var to_paint = []
 
-    var paint_chunks = function()
+    var paint_chunks = function(cou)
     {
-      if (!tiles.loaded)
+      if (!runtime.tiles.loaded)
         return;
 
+      var tiles = runtime.tiles
+      var chunks = runtime.chunks
       var start = Date.now()
 
+      var cou = cou || {}
+
       // Find our chunks
-      var x_chunk = Math.floor(user.x / chunks.chunk_xw)
-      var y_chunk = Math.floor(user.y / chunks.chunk_yh)
+      var x_chunk = floor((cou.x || 0) / chunks.chunk_xw)
+      var y_chunk = floor((cou.y || 0) / chunks.chunk_yh)
 
       var unseen = {}
       $.each(loaded_chunks, function(k)
@@ -101,23 +105,25 @@
 
     var paint_one = function(chunk_x, chunk_y)
     {
-      var chunk = chunks.get_chunk(chunk_x, chunk_y)
+      var chunk = runtime.chunks.get_chunk(chunk_x, chunk_y)
 
       if (chunk == undefined)
         return
 
+      var tiles = runtime.tiles
+
       // TODO: This cuts off each chunk edge by tiles.tiles_bd
-      var xw = tiles.tiles_xw * chunks.chunk_xw
-      var yh = tiles.tiles_yh * chunks.chunk_yh
+      var xw = tiles.tiles_xw * runtime.chunks.chunk_xw
+      var yh = tiles.tiles_yh * runtime.chunks.chunk_yh
 
       var scratch_bg = new Gfx(xw, yh)
       var scratch_fg = new Gfx(xw, yh)
       var bg_c = scratch_bg.context
       var fg_c = scratch_fg.context
 
-      for (var x = 0; x < chunks.chunk_xw; x++)
+      for (var x = 0; x < runtime.chunks.chunk_xw; x++)
       {
-        for (var y = 0; y < chunks.chunk_yh; y++)
+        for (var y = 0; y < runtime.chunks.chunk_yh; y++)
         {
           var c = chunk[x][y]
           if (c == undefined)
@@ -214,7 +220,7 @@
 
     var maybe_paint_one = function(chunk_x, chunk_y)
     {
-      var chunk = chunks.get_chunk(chunk_x, chunk_y)
+      var chunk = runtime.chunks.get_chunk(chunk_x, chunk_y)
 
       if (chunk == undefined)
         return
@@ -229,13 +235,13 @@
     {
       var result = []
 
-      var xw = tiles.tiles_xw * chunks.chunk_xw
-      var yh = tiles.tiles_yh * chunks.chunk_yh
-      var mul_x = chunks.chunk_xw
-      var mul_y = chunks.chunk_yh
+      var xw = runtime.tiles.tiles_xw * runtime.chunks.chunk_xw
+      var yh = runtime.tiles.tiles_yh * runtime.chunks.chunk_yh
+      var mul_x = runtime.chunks.chunk_xw
+      var mul_y = runtime.chunks.chunk_yh
 
-      var min_xw = cou.x - [% width / 2 %] / tiles.tiles_xw
-      var max_xw = cou.x + [% width / 2 %] / tiles.tiles_xw
+      var min_xw = cou.x - [% width / 2 %] / runtime.tiles.tiles_xw
+      var max_xw = cou.x + [% width / 2 %] / runtime.tiles.tiles_xw
 
       $.each(loaded_chunks, function(i, painted_chunk)
       {
@@ -262,16 +268,16 @@
       return result
     }
 
-    runtime.events.on('repaint.chunks_bg', function(cou)
+    engine.events.on('repaint.chunks_bg', function(cou)
     {
       return repaint_chunks(cou, 'bg')
     })
 
-    runtime.events.on('repaint.chunks_fg', function(cou)
+    engine.events.on('repaint.chunks_fg', function(cou)
     {
       return repaint_chunks(cou, 'fg')
     })
 
     engine.events.on('runtime.maintaince', paint_chunks);
-    runtime.events.on('loader.paint_one_chunk', paint_one);
+    engine.events.on('loader.paint_one_chunk', paint_one);
   [% END %]

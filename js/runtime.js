@@ -118,9 +118,9 @@
         var y = anim.frame_y
 
         if (x == undefined)
-          x = ((anim.x - cou.x) * tiles.tiles_xw)
+          x = ((anim.x - cou.x) * self.tiles.tiles_xw)
         if (y == undefined)
-          y = ((anim.y - cou.y) * tiles.tiles_yh)
+          y = ((anim.y - cou.y) * self.tiles.tiles_yh)
 
         var img = anim.get_gfx()
 
@@ -178,11 +178,13 @@
       [% WRAPPER per_second name="Frame" %]
 
       var cou = get_cou()
+      var chunks = self.chunks
+      var tiles = self.tiles
 
       var chunk_x_mid = chunks.chunk_xw >> 1
       var chunk_y_mid = chunks.chunk_yh >> 1
 
-      var cou_chunk = chunks.get_chunk_for(cou.x, cou.y)
+      var cou_chunk = chunks.get_chunk_for(cou.x, cou.y) || {}
 
       // Check all of the cardinal directions to stop from scrolling into
       //  unseen areas
@@ -454,10 +456,6 @@
 
     self.events.on('preload_done', function()
     {
-      /*
-      chunks.flush()
-      paint_chunks()
-      */
       start_runtime()
     });
 

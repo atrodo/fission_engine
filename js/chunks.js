@@ -112,7 +112,7 @@
         {
           value = {
             tile: value,
-            physics: $.extend({}, tiles[value]),
+            physics: $.extend({}, runtime.tiles[value]),
           }
         }
 
