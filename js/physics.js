@@ -9,9 +9,12 @@
       y: 101,
       xw: 3,
       yh: 3,
-      max_speed: 10,
+
       max_jump: 6,
-      gravity: -9,
+      min_momentum_x: 0,
+      max_momentum_x: 10,
+      min_momentum_y: -9,
+      max_momentum_y: 10,
 
       momentum_y: 0,
       momentum_x: 0,
@@ -25,6 +28,10 @@
       next_frame: {
         momentum_y: false,
         momentum_x: false,
+        min_momentum_x: false,
+        max_momentum_x: false,
+        min_momentum_y: false,
+        max_momentum_y: false,
       },
 
       sprite: null,
@@ -444,6 +451,17 @@
           was_j: this.momentum_y != 0,
         })
 
+        var momentum_bounds = {
+          min_momentum_x: false,
+          max_momentum_x: false,
+          min_momentum_y: false,
+          max_momentum_y: false,
+        }
+        $.each(momentum_bounds, function(k, v)
+        {
+          momentum_bounds[k] = self.next_frame[k] || self[k]
+        })
+
         // Move the object and check collision
         if ( !this.set_pos_relative(this.relative_x, this.relative_y) )
         {
@@ -525,7 +543,8 @@
           this.momentum_x = 0
         }
 
-        this.momentum_x = Math.min(this.momentum_x, this.max_speed)
+        this.momentum_x = min(this.momentum_x, momentum_bounds.max_momentum_x)
+        this.momentum_x = max(momentum_bounds.min_momentum_x, this.momentum_x)
 
         if (pos_info.hit_floor)
         {
@@ -543,7 +562,8 @@
         {
           this.current_j = this.max_jump
           this.momentum_y -= 1
-          this.momentum_y = Math.max(this.momentum_y, this.gravity)
+          this.momentum_y = min(this.momentum_y, momentum_bounds.max_momentum_y)
+          this.momentum_y = max(momentum_bounds.min_momentum_y, this.momentum_y)
         }
         else
         {
@@ -583,6 +603,10 @@
         this.next_frame = {
           momentum_x: false,
           momentum_y: false,
+          min_momentum_x: false,
+          max_momentum_x: false,
+          min_momentum_y: false,
+          max_momentum_y: false,
         }
 
       }
@@ -599,7 +623,7 @@
         attack_obj = $.extend({
           xw: 2,
           yh: 3,
-          gravity: 0,
+          min_momentum_y: 0,
           speed: null,
           fall: null,
 
@@ -631,7 +655,7 @@
           relative_x: attack_obj.relative_x,
           relative_y: attack_obj.relative_y,
 
-          gravity: attack_obj.gravity,
+          min_momentum_y: attack_obj.min_momentum_y,
 
           sprite: attack_obj.sprite,
 
