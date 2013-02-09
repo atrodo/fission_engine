@@ -17,8 +17,8 @@
       frame_y: null,
       x: 0,
       y: 0,
-      xw: 10,
-      yh: 10,
+      xw: 1,
+      yh: 1,
 
       flip_xw: false,
       center: 5,
