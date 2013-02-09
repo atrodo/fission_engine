@@ -9,6 +9,7 @@
           listeners[type] = []
         if (listeners[type].indexOf(cb) < 0)
           listeners[type].push(cb)
+        return this;
       },
       once: function(type, cb)
       {
@@ -17,6 +18,7 @@
           this.off(type, observer)
           cb.apply(this, arguments)
         })
+        return this;
       },
       emit: function(type)
       {
@@ -54,6 +56,7 @@
         {
           listeners[type].splice(index, 1);
         }
+        return this;
       },
     })
   }
