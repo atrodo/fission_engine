@@ -20,6 +20,14 @@
         })
         return this;
       },
+      exists: function(type)
+      {
+        if (!$.isArray(listeners[type]))
+          return false;
+        if (listeners[type].length > 0)
+          return true;
+        return false;
+      },
       emit: function(type)
       {
         var result = []
