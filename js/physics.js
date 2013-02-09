@@ -205,7 +205,7 @@
     })
 
     $.extend(this, {
-      is_collide: function(unused_round, full)
+      is_collide: function(full)
       {
         full = !!full
         var is_solid = this.flags.solid
@@ -287,7 +287,7 @@
           old_y = this.y
           this.y--
         }
-        var result = this.is_collide(null, true)
+        var result = this.is_collide(true)
         this.y = old_y
         return result
       },
@@ -450,7 +450,7 @@
         // Do full processing collision
         if ($.isFunction(this.callback.full_collide))
         {
-          this.callback.full_collide.call(this, self.is_collide(floor, true))
+          this.callback.full_collide.call(this, self.is_collide(true))
         }
 
         // Handle callbacks
