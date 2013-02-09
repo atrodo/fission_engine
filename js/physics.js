@@ -265,18 +265,13 @@
 
           var other = all_physics[i]
 
-          // See if the two objects are even close
-          if ( floor(this.x - other.x) < 16
-            && floor(this.y - other.y) < 16 )
+          if ( ( other.x < xmax && other.x + other.xw > xmin )
+            && ( other.y < ymax && other.y + other.yh > ymin))
           {
-            if ( ( other.x < xmax && other.x + other.xw > xmin )
-              && ( other.y < ymax && other.y + other.yh > ymin))
-            {
-              if (full)
-                all_colide.push(other)
-              else
-                return true;
-            }
+            if (full)
+              all_colide.push(other)
+            else
+              return true;
           }
         }
         if (full)
