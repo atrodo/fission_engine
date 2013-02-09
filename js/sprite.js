@@ -199,3 +199,9 @@
     if (this.name)
       sprite_catalog[this.name] = this;
   }
+
+  Sprite.empty_sprite = new Sprite({
+    default: new Animation({
+      get_gfx: function() { this.gfx.reset(); return this.gfx },
+    })
+  })
