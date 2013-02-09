@@ -456,6 +456,53 @@
           this.callback.full_collide.call(this, self.is_collide(true))
         }
 
+        if (this.callback.full_collide instanceof Events)
+        {
+          [% WRAPPER scope %]
+          var buckets = {
+            all_objects: [],
+            all_physics: [],
+            all_tiles: [],
+            unrelated_physics: []
+          }
+
+          var full_collide = self.callback.full_collide
+          $.each(buckets, function(bucket)
+          {
+            if (!full_collide.exists(bucket))
+              delete buckets[bucket]
+          })
+
+          if (count_object_keys(buckets) != 0)
+          {
+            var all_objects = self.is_collide(true)
+
+            var ultimate_owner = self.ultimate_owner()
+
+            $.each(all_objects, function(i, obj)
+            {
+              if (buckets.all_objects)
+                buckets.all_objects.push(obj)
+              if (buckets.all_physics && (obj instanceof Physics))
+                buckets.all_physics.push(obj)
+              if (buckets.all_tiles && !(obj instanceof Physics))
+                buckets.all_tiles.push(obj)
+              if (ultimate_owner && buckets.unrelated_physics
+                  && (obj instanceof Physics)
+                  && ultimate_owner != obj.ultimate_owner()
+                 )
+                buckets.unrelated_physics.push(obj)
+            })
+
+            $.each(buckets, function(bucket, bucket_objs)
+            {
+              if (bucket_objs.length > 0)
+                full_collide.emit(bucket, bucket_objs)
+            })
+          }
+          [% END %]
+        }
+
         // Handle callbacks
         var was_m = this.is_m();
 
