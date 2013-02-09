@@ -145,6 +145,15 @@
       {
         return this.momentum_x != 0
       },
+
+      ultimate_owner: function()
+      {
+        var result = this.owner
+        if (result != undefined)
+          while (result.owner != undefined)
+            result = result.owner;
+        return result
+      },
     });
 
     $.extend(this, {
