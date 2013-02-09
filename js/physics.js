@@ -320,6 +320,9 @@
           hit_ceiling: false,
         }
 
+        var orig_x = this.x
+        var orig_y = this.y
+
         var x_dir = this.flags.facing_left ? -1 : 1
         var y_dir = this.momentum_y <= 0 ? -1 : 1
 
@@ -388,7 +391,7 @@
           }
         }
 
-        while (self.is_collide())
+        while (self.is_collide() && this.x != orig_x)
         {
           this.x -= x_dir * sub_pixel
         }
@@ -414,7 +417,7 @@
           }
         }
 
-        while (self.is_collide())
+        while (self.is_collide() && this.y != orig_y)
         {
           this.y -= y_dir * sub_pixel
         }
