@@ -135,6 +135,7 @@
         collide: function() {},
 
         full_collide: null,
+        init: function() {},
         sprite_done:  function() {},
         removed: function() {},
     }, this.callback)
@@ -629,6 +630,8 @@
         return deferred.promise();
       },
     });
+
+    this.callback.init.call(this)
 
   }
 
