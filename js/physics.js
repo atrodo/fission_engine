@@ -172,8 +172,6 @@
           // Converge to zero
           this.next_frame.momentum_x = (this.momentum_x < 0 ? 1 : -1)
         }
-
-        //this.momentum_x = Math.min(this.momentum_x, this.max_speed)
       },
 
       add_momentum_r: function()
@@ -191,16 +189,11 @@
           // Converge to zero
           this.next_frame.momentum_x = (this.momentum_x < 0 ? 1 : -1)
         }
-
-        //this.momentum_x = Math.min(this.momentum_x, this.max_speed)
-
       },
 
       add_momentum_j: function()
       {
         this.next_frame.momentum_y = 1
-        // Ignore jumps if the current jump is as high as they can go
-          //this.momentum_y = Math.min(this.momentum_y, this.max_speed)
       },
     })
 
