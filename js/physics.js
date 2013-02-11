@@ -461,6 +461,19 @@
           min_momentum_y: false,
           max_momentum_y: false,
         }
+
+        if (self.next_frame.min_momentum_x !== false
+            && self.next_frame.max_momentum_x === false)
+        {
+          self.next_frame.max_momentum_x = self.max_momentum_x + self.next_frame.min_momentum_x
+        }
+
+        if (self.next_frame.min_momentum_y !== false
+            && self.next_frame.max_momentum_y === false)
+        {
+          self.next_frame.max_momentum_y = self.max_momentum_y + self.next_frame.min_momentum_y
+        }
+
         $.each(momentum_bounds, function(k, v)
         {
           momentum_bounds[k] = self.next_frame[k] || self[k]
