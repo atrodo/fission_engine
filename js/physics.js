@@ -42,6 +42,7 @@
 
       flags: {
         facing_left: false,
+        upside_down: false,
         solid: true,
         reduce_momentum: true,
         destroy_with_owner: true,
@@ -334,7 +335,10 @@
         var orig_y = this.y
 
         var x_dir = this.flags.facing_left ? -1 : 1
-        var y_dir = this.momentum_y <= 0 ? -1 : 1
+        var y_dir = this.flags.upside_down ? -1 : 1
+
+        x_dir *= this.momentum_x < 0 ? -1 : 1
+        y_dir *= this.momentum_y < 0 ? -1 : 1
 
         var x_distance = abs(sub_pixel * this.momentum_x)
         var y_distance = abs(sub_pixel * this.momentum_y)
@@ -531,7 +535,6 @@
             this.momentum_x -= 2
           else
             this.momentum_x -= 1
-          this.momentum_x = Math.max(this.momentum_x, 0)
         }
         else
         {
