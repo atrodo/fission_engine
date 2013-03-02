@@ -221,6 +221,10 @@
 
       try
       {
+        context.save()
+        context.translate(width * (1/2), height * (1/2))
+        context.scale(1, -1)
+
         $.each(runtime.events.emit('repaint.background', cou), function()
         {
           var backgrounds = this
@@ -228,10 +232,6 @@
             backgrounds = [backgrounds]
           draw_animations(context, cou, backgrounds)
         })
-
-        context.save()
-        context.translate(width * (1/2), height * (1/2))
-        context.scale(1, -1)
 
         $.each(runtime.events.emit('repaint.chunks_bg', cou), function()
         {
