@@ -36,6 +36,76 @@
         return self
       }
 
+      self.draw_animation = function(anim, cou)
+      {
+        if (!(anim instanceof Animation))
+          throw new Error("Can only draw an Animation")
+
+        cou = cou || { x: 0, y: 0 }
+        var context = this.context
+        context.save()
+
+        try
+        {
+          var x = anim.frame_x
+          var y = anim.frame_y
+
+          if (x == undefined)
+            x = ((anim.x - cou.x) * runtime.tiles.tiles_xw)
+          if (y == undefined)
+            y = ((anim.y - cou.y) * runtime.tiles.tiles_yh)
+
+          var img = anim.get_gfx()
+
+          if (anim.flip_xw)
+          {
+            context.scale(-1, 1)
+            context.translate(-anim.center, 0)
+            x = -x
+          }
+
+          context.drawImage(
+            img.canvas,
+            x - anim.trim_s,
+            y - anim.trim_b,
+            anim.xw,
+            anim.yh
+          )
+
+          [% IF show_draw_box %]
+          context.strokeStyle = "rgba(255, 0, 165, 0.5)"
+          context.strokeRect(
+            x - anim.trim_s,
+            y - anim.trim_b,
+            anim.xw,
+            anim.yh
+          )
+          [% END %]
+        }
+        catch (e)
+        {
+          console.log("exception:", e)
+        }
+        finally
+        {
+          context.restore()
+        }
+      }
+
+      self.draw_animations = function(anims, cou)
+      {
+        if (!$.isArray(anims))
+          throw new Error("Must pass an array to 'draw_animations'");
+
+        $.each(anims, function(i, anim)
+        {
+          try
+          {
+            self.draw_animation(anim, cou);
+          } catch(e) { console.log(e) };
+        })
+      }
+
       self.preload = function(url, do_flip)
       {
         if (do_flip == undefined)

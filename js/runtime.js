@@ -77,17 +77,11 @@
     var frame_logics = [];
     var run_physics = true
 
-    var canvas = $("<canvas/>")
-      .attr("height", height)
-      .attr("width", width)
-      .css({
-        height: height * 1.0,
-        width:  width * 1.0,
-      })
+    var stage = new Gfx(self.width, self.height)
 
     content
       .empty()
-      .append(canvas)
+      .append(stage.canvas)
       [% IF show_timings %]
       .append(fps_span)
       [% END %]
@@ -103,74 +97,6 @@
         y: cou_source.y || 0,
       }
       return cou;
-    }
-
-    var draw_animation = function(context, cou, anim)
-    {
-      if (!(anim instanceof Animation))
-        throw new Error("Can only draw an Animation")
-
-      context.save()
-
-      try
-      {
-        var x = anim.frame_x
-        var y = anim.frame_y
-
-        if (x == undefined)
-          x = ((anim.x - cou.x) * self.tiles.tiles_xw)
-        if (y == undefined)
-          y = ((anim.y - cou.y) * self.tiles.tiles_yh)
-
-        var img = anim.get_gfx()
-
-        if (anim.flip_xw)
-        {
-          context.scale(-1, 1)
-          context.translate(-anim.center, 0)
-          x = -x
-        }
-
-        context.drawImage(
-          anim.get_gfx().canvas,
-          x - anim.trim_s,
-          y - anim.trim_b,
-          anim.xw,
-          anim.yh
-        )
-
-        [% IF show_draw_box %]
-        context.strokeStyle = "rgba(255, 0, 165, 0.5)"
-        context.strokeRect(
-          x - anim.trim_s,
-          y - anim.trim_b,
-          anim.xw,
-          anim.yh
-        )
-        [% END %]
-      }
-      catch (e)
-      {
-        console.log("exception:", e)
-      }
-      finally
-      {
-        context.restore()
-      }
-    }
-
-    var draw_animations = function(context, cou, anims)
-    {
-      if (!$.isArray(anims))
-        throw new Error("Must pass an array to 'draw_animations'");
-
-      $.each(anims, function(i, anim)
-      {
-        try
-        {
-          draw_animation(context, cou, anim);
-        } catch(e) { console.log(e) };
-      })
     }
 
     var repaint = function()
@@ -209,9 +135,7 @@
           cou.x = cou_chunk.meta.chunk_x * chunks.chunk_xw + chunk_x_mid
       }
 
-      _last_cou = cou
-
-      var context = canvas.get(0).getContext("2d")
+      var context = stage.context
 
       context.restore()
       context.clearRect(0, 0, width, height)
@@ -230,7 +154,7 @@
           var backgrounds = this
           if (!$.isArray(backgrounds))
             backgrounds = [backgrounds]
-          draw_animations(context, cou, backgrounds)
+          stage.draw_animations(backgrounds, cou)
         })
 
         $.each(runtime.events.emit('repaint.chunks_bg', cou), function()
@@ -238,7 +162,7 @@
           var paints = this
           if (!$.isArray(paints))
             paints = [paints]
-          draw_animations(context, cou, paints)
+          stage.draw_animations(paints, cou)
         })
 
         for (var phy_obj in all_physics)
@@ -252,7 +176,7 @@
             anim.x = phys.x
             anim.y = phys.y
             anim.flip_xw = phys.flags.facing_left;
-            draw_animation(context, cou, anim);
+            stage.draw_animation(anim, cou);
 
             [% IF show_phys_box %]
             var x = (phys.x - cou.x) * tiles.tiles_xw
@@ -282,11 +206,12 @@
           var paints = this
           if (!$.isArray(paints))
             paints = [paints]
-          draw_animations(context, cou, paints)
+          stage.draw_animations(paints, cou)
         })
 
         context.restore()
 
+        /*
         for (var hud_obj in all_huds)
         {
           try
@@ -308,6 +233,7 @@
             //console.log(" ==> ", e.get_stack())
           }
         }
+        */
 
         context.save()
 
