@@ -63,6 +63,7 @@
     [% INCLUDE js/gfx.js %]
     [% INCLUDE js/hud.js %]
     [% INCLUDE js/loader.js %]
+    [% INCLUDE js/animation.js %]
     [% INCLUDE js/sprite.js %]
     [% INCLUDE js/ai.js %]
     [% INCLUDE js/runtime.js %]
