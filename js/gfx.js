@@ -50,6 +50,9 @@
         promise.then(function(img)
         {
           img = $(img);
+          xw = img.width()
+          yh = img.height()
+
           $(self.canvas)
             .attr("height", img.height())
             .attr("width", img.width())
@@ -67,6 +70,16 @@
         })
 
         return result
+      }
+
+      self.xw = function()
+      {
+        return xw
+      }
+
+      self.yh = function()
+      {
+        return yh
       }
 
     [% END %]

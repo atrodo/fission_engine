@@ -26,49 +26,30 @@
       trim_b: 0,
     }, options);
 
-    this._img = this.img;
-    this.img = null;
+    var self = this;
 
-    if (this.get_gfx != undefined)
+    this.gfx = new Gfx(this.xw, this.yh)
+
+    if (this.get_gfx == undefined)
     {
-      this.gfx = new Gfx(this.xw, this.yh)
-      this.get_img = this.get_gfx;
-    }
+      if ($.type(this.img) != "string")
+        throw "Must provide img or get_gfx for an Animation";
 
-    if (!$.isFunction(this.get_img))
-    {
-      if (!(this._img instanceof HTMLElement))
-      {
-        if ($.type(this._img) != "string")
-          throw "Must provide img for an Animation";
-
-        this._img = preload(this._img);
-      }
-
-      this.get_img = function()
-      {
-        return this._img;
-      }
-
-      var gfx = new Gfx(this.xw, this.yh)
-      this.get_gfx = function()
-      {
-        gfx.reset()
-        var c = gfx.context
-
-        c.drawImage(
-          this._img,
-          floor(this.frame) * this.xw,
-          0,
-          this.xw,
-          this.yh,
-          0,
-          0,
-          this.xw,
-          this.yh
+      var img = new Gfx(1, 1);
+      img
+        .preload(this.img)
+        .then(function(img)
+          {
+            self.img = img;
+            self.xw = img.xw()
+            self.yh = img.yh()
+            self.gfx = new Gfx(self.xw, self.yh)
+          }
         )
 
-        return gfx
+      this.get_gfx = function()
+      {
+        return self.img
       }
     }
     [% END %]
