@@ -1,22 +1,3 @@
-  var start_runtime = function() {};
-  var stop_runtime  = function() {};
-  var runtime_frame = function() {};
-  var add_frame_logic = function() {};
-  var suspend_physics = function() {};
-  var resume_physics = function() {};
-
-    var zoom = 1;
-    var trans_x = 0;
-    var trans_y = 0;
-
-  [% IF show_map %]
-  zoom = 0.0625;
-  trans_x = -4800
-  trans_y = 3200
-  [% END %]
-
-    var width  = 640
-    var height = 480
   function Runtime(options)
   {
     $.extend(this, {
@@ -87,8 +68,6 @@
       [% END %]
 
     // Center of universe
-    var _last_cou
-
     var get_cou = function()
     {
       var cou_source = runtime.events.call("runtime.cou_source") || {}
@@ -138,15 +117,13 @@
       var context = stage.context
 
       context.restore()
-      context.clearRect(0, 0, width, height)
+      context.clearRect(0, 0, self.width, self.height)
       context.save()
-
-      context.scale(zoom, zoom);
 
       try
       {
         context.save()
-        context.translate(width * (1/2), height * (1/2))
+        context.translate(self.width * (1/2), self.height * (1/2))
         context.scale(1, -1)
 
         $.each(runtime.events.emit('repaint.background', cou), function()
@@ -211,6 +188,7 @@
 
         context.restore()
 
+        /*
         for (var hud_obj in all_huds)
         {
           try
@@ -232,6 +210,7 @@
             //console.log(" ==> ", e.get_stack())
           }
         }
+        */
 
         context.save()
 
@@ -264,17 +243,7 @@
           process_physics()
         }
 
-        for (var fl_obj in frame_logics)
-        {
-          try
-          {
-            frame_logics[fl_obj](last_frame);
-          }
-          catch (e)
-          {
-            console.log("exception:", e)
-          }
-        }
+        runtime.events.emit('runtime.frame_logic', last_frame)
 
         if (reset_last_frame)
           last_frame = now;
@@ -329,9 +298,6 @@
         window.setTimeout(callback, 33);
       };
 
-    var _xw_trans = (width  * (2/8)) - ( width  / 2 )
-    var _yh_trans = (height * (3/8)) - ( height / 2 )
-
     var frame_requested = function()
     {
       if (process_painting)
@@ -344,9 +310,9 @@
     }
     anim_frame(frame_requested)
 
-    start_runtime = function()
+    self.start_runtime = function()
     {
-      stop_runtime();
+      self.stop_runtime();
       console.log("Runtime starting")
 
       bot = Date.now()
@@ -357,7 +323,7 @@
       process_painting = true;
     }
 
-    stop_runtime = function()
+    self.stop_runtime = function()
     {
       console.log("Runtime stopping")
       clearInterval(maintain_interval)
@@ -365,40 +331,19 @@
       process_painting = false;
     }
 
-    [% IF debug %]
-      content
-        .append("<br/>")
-        .append($("<button/>")
-          .text("Start")
-          .click(start_runtime)
-        )
-        .append($("<button/>")
-          .text("Stop")
-          .click(stop_runtime)
-        )
-    [% END %]
-
     self.events.on('preload_done', function()
     {
-      start_runtime()
+      self.start_runtime()
     });
 
-    runtime_frame = function()
+    self.runtime_frame = function()
     {
       physics(true);
       repaint();
     }
 
-    add_frame_logic = function(new_fl)
-    {
-      if (!$.isFunction(new_fl))
-        throw "add_frame_logic only accepts functions";
-
-      frame_logics.push(new_fl);
-    }
-
-    suspend_physics = function() { run_physics = false };
-    resume_physics = function() { run_physics = true };
+    self.suspend_physics = function() { run_physics = false };
+    self.resume_physics = function() { run_physics = true };
 
   }
   var runtime = new Runtime()
