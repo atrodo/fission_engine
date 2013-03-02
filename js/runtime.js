@@ -211,7 +211,6 @@
 
         context.restore()
 
-        /*
         for (var hud_obj in all_huds)
         {
           try
@@ -233,7 +232,6 @@
             //console.log(" ==> ", e.get_stack())
           }
         }
-        */
 
         context.save()
 

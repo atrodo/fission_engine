@@ -39,7 +39,10 @@
         var cbs = listeners[type].slice()
         while (cbs.length > 0)
         {
-          result.push(cbs.shift().apply(this, args))
+          try
+          {
+            result.push(cbs.shift().apply(this, args))
+          } catch (e) { console.log(e) }
         }
 
         return result
