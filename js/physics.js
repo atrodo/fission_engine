@@ -1,6 +1,4 @@
-  var all_physics = []
-
-  function Physics(options)
+  function Physics(options, extra)
   {
     var sub_pixel = 1/8
 
@@ -19,6 +17,8 @@
       momentum_y: 0,
       momentum_x: 0,
       current_j: 0,
+
+      layer: null,
 
       // The physics that created this object
       owner: null,
@@ -47,7 +47,7 @@
         reduce_momentum: true,
         destroy_with_owner: true,
       },
-    }, options)
+    }, options, extra || {})
 
     if ($.type(this.sprite) == "string")
       this.sprite = sprite_catalog[this.sprite];
@@ -269,12 +269,12 @@
         var xmin = this.x, xmax = this.x + this.xw;
         var ymin = this.y, ymax = this.y + this.yh;
 
-        for (var i = 0; i < all_physics.length; i++)
+        for (var i = 0; i < this.layer.all_physics.length; i++)
         {
-          if (all_physics[i] == this || all_physics[i] == this.owner || !all_physics[i].flags.solid)
+          if (this.layer.all_physics[i] == this || this.layer.all_physics[i] == this.owner || !this.layer.all_physics[i].flags.solid)
             continue;
 
-          var other = all_physics[i]
+          var other = this.layer.all_physics[i]
 
           if ( ( other.x < xmax && other.x + other.xw > xmin )
             && ( other.y < ymax && other.y + other.yh > ymin))
@@ -727,75 +727,42 @@
       },
     });
 
+    this.set_layer = function(new_layer)
+    {
+      if (new_layer == this.layer)
+        return this.deferred.promise();
+
+      var old_layer = this.layer
+
+      this.layer = null
+
+      if (old_layer instanceof Layer)
+      {
+        old_layer.remove_physics(this);
+      }
+
+      if (new_layer == null && old_layer != null)
+      {
+        this.callback.removed.call(this);
+        this.deferred.resolve()
+        return;
+      }
+
+      if (!(new_layer instanceof Layer))
+        throw new Error("Must pass a Layer to set_layer")
+
+      this.layer = new_layer;
+
+      return this.deferred.promise();
+    }
+
+    if (this.layer != null)
+    {
+      var new_layer = this.layer
+      this.layer = null
+      this.set_layer(new_layer)
+    }
+
     this.callback.init.call(this)
 
-  }
-
-  var add_physics = function(new_phys)
-  {
-    if (!(new_phys instanceof Physics))
-      throw "Physics elements must be a 'Physics'";
-
-    all_physics.push(new_phys)
-    return new_phys.deferred.promise();
-  }
-  var remove_physics = function(old_phys)
-  {
-    var remove_one = function(current_phys)
-    {
-      $.each(all_physics, function(i, phys)
-      {
-        if (phys == undefined)
-          return
-
-        if (phys.flags.destroy_with_owner && phys.owner == current_phys)
-        {
-          remove_one(phys)
-        }
-        if (phys == current_phys)
-        {
-           phys.callback.removed.call(phys);
-           phys.deferred.resolve()
-           delete all_physics[i]
-        }
-      })
-    }
-
-    remove_one(old_phys)
-
-    fix_all_physics()
-  }
-  var clear_physics = function()
-  {
-    for (var phy_obj in all_physics)
-    {
-      remove_physics(all_physics[phy_obj])
-    }
-  }
-
-  var process_physics = function()
-  {
-    for (var phy_obj in all_physics)
-    {
-      var phys = all_physics[phy_obj]
-
-      if (phys == null)
-        continue
-
-      phys.frame()
-    }
-    return
-  }
-
-  var fix_all_physics = function()
-  {
-    var new_all_physics = []
-    for (var phy_obj in all_physics)
-    {
-      if (all_physics[phy_obj] != undefined)
-      {
-        new_all_physics.push(all_physics[phy_obj])
-      }
-    }
-    all_physics = new_all_physics
   }

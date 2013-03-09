@@ -4,7 +4,11 @@
       width:  640,
       height: 480,
 
+      //
       chunks: new Chunks(),
+
+      layer_groups: [],
+
       events: engine.events,
 
       tiles:  new Tiles({
@@ -126,94 +130,20 @@
         context.translate(self.width * (1/2), self.height * (1/2))
         context.scale(1, -1)
 
-        $.each(runtime.events.emit('repaint.background', cou), function()
-        {
-          var backgrounds = this
-          if (!$.isArray(backgrounds))
-            backgrounds = [backgrounds]
-          stage.draw_animations(backgrounds, cou)
-        })
-
-        $.each(runtime.events.emit('repaint.chunks_bg', cou), function()
-        {
-          var paints = this
-          if (!$.isArray(paints))
-            paints = [paints]
-          stage.draw_animations(paints, cou)
-        })
-
-        for (var phy_obj in all_physics)
+        self.foreach_active_layer(function(layer)
         {
           context.save()
-
           try
           {
-            var phys = all_physics[phy_obj]
-            var anim = phys.sprite.current
-            anim.x = phys.x
-            anim.y = phys.y
-            anim.flip_xw = phys.flags.facing_left;
-            stage.draw_animation(anim, cou);
-
-            [% IF show_phys_box %]
-            var x = (phys.x - cou.x) * tiles.tiles_xw
-            var y = (phys.y - cou.y) * tiles.tiles_yh
-
-            context.strokeStyle = "rgba(255, 165, 0, 0.5)"
-            context.strokeRect(
-              x,
-              y,
-              phys.xw * tiles.tiles_xw,
-              phys.yh * tiles.tiles_yh
-            )
-            [% END %]
-          }
-          catch (e)
-          {
+            layer.repaint(stage, cou)
+          } catch (e) {
             console.log("exception:", e)
-          }
-          finally
-          {
+          } finally {
             context.restore()
           }
-        }
-
-        $.each(runtime.events.emit('repaint.chunks_fg', cou), function()
-        {
-          var paints = this
-          if (!$.isArray(paints))
-            paints = [paints]
-          stage.draw_animations(paints, cou)
         })
 
-        context.restore()
-
-        /*
-        for (var hud_obj in all_huds)
-        {
-          try
-          {
-            var hud = all_huds[hud_obj]
-            var img = hud.animation.get_img()
-            if (img != undefined)
-            {
-              context.drawImage(
-                img,
-                hud.x,
-                hud.y
-              )
-            }
-          }
-          catch (e)
-          {
-            console.log("exception:", e)
-            //console.log(" ==> ", e.get_stack())
-          }
-        }
-        */
-
         context.save()
-
       } catch (e) {
         console.log("exception:", e)
       } finally {
@@ -237,13 +167,14 @@
         [% WRAPPER per_second name="Physics" %]
         last_frame += physics_timing
 
-        if (run_physics)
-        {
-          runtime.events.emit('input_frame')
-          process_physics()
-        }
+        runtime.events.emit('input_frame')
 
         runtime.events.emit('runtime.frame_logic', last_frame)
+
+        self.foreach_active_layer(function(layer)
+        {
+          layer.process_physics()
+        })
 
         if (reset_last_frame)
           last_frame = now;
@@ -309,6 +240,56 @@
       anim_frame(frame_requested)
     }
     anim_frame(frame_requested)
+
+    /* */
+
+    var name_match = /^(\w*)[.](.*)$/
+    self.add_layer = function(name, layer)
+    {
+      var name_split = name.match(name_match)
+      var group_name = name_split[1]
+      name = name_split[2]
+
+      if (!(layer instanceof Layer) && $.type(layer) == "object")
+      {
+        $.extend(layer, {name: name, group_name: group})
+        layer = new Layer(layer)
+      }
+
+      var group = null;
+      $.each(self.layer_groups, function(i, layer_group)
+      {
+        if (layer_group.name == group_name)
+        {
+          group = layer_group
+          return false
+        }
+      })
+
+      if (group == null)
+      {
+        group = { name: group_name, layers: [], active: true, }
+        self.layer_groups.push(group)
+      }
+
+      group.layers.push(layer)
+
+      return layer
+    }
+
+    self.foreach_active_layer = function(callback)
+    {
+      $.each(self.layer_groups, function(i, group)
+      {
+        if (group.active)
+        {
+          $.each(group.layers, function(i, layer)
+          {
+            callback(layer);
+          });
+        }
+      });
+    }
 
     self.start_runtime = function()
     {

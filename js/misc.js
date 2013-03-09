@@ -39,7 +39,7 @@ var min = function(a, b)
   return (a < b) ? a : b;
 }
 
-var fix_all = function(old_all)
+var compact_array = function(old_all)
 {
   var new_all = []
   for (var obj in old_all)
