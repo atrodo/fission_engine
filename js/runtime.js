@@ -153,8 +153,6 @@
       [% END %]
     }
 
-    [% INCLUDE js/recording.js %]
-
     var bot = Date.now()
     var last_frame = bot;
 
@@ -178,34 +176,6 @@
 
         if (reset_last_frame)
           last_frame = now;
-
-        [% IF record %]
-          var frame = [];
-          for (var phy_obj in all_physics)
-          {
-            var phys = all_physics[phy_obj]
-
-            if (phys == null)
-              continue
-
-            frame.push(phys.save_state())
-          }
-          var row = {
-            c: $.extend({}, flushed_chunks),
-            p: frame,
-          };
-          if (cou != undefined)
-          {
-            row.cou = {
-              x: cou.x,
-              y: cou.y,
-            }
-          }
-
-          record_data += ",\n" + JSON.stringify(row)
-
-          flushed_chunks = {}
-        [% END %]
 
         [% END %]
       }

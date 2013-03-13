@@ -18,7 +18,6 @@
       paint_chunk_interval = 50
       chunk_draw_range     = 7
 
-      record       = 0
       debug        = 0
       show_map     = 0
       show_tiles   = 0

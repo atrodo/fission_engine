@@ -57,68 +57,6 @@
 
     this.sprite = this.sprite.clone()
 
-    [%
-      important_fields = {
-        x  => "x",
-        y  => "y",
-        s  => "sprite.name",
-        sc => "sprite.current.name",
-        sf => "sprite.frame",
-        fl => "flags.facing_left",
-      }
-    %]
-
-    this.save_state = function()
-    {
-      try
-      {
-        return {
-          [% FOREACH field IN important_fields %]
-            [% field.key %]: this.[% field.value %],
-          [% END %]
-        }
-      }
-      catch (e)
-      {
-        return {}
-      }
-    }
-
-    Physics.quick_load = function(import_data)
-    {
-      var result = $.extend(true, {},
-        [% FOREACH field IN important_fields %]
-          [% new_key = field.value _ ' ' %]
-          [%~ PERL %]
-            my $k = '[% field.value %] :import_data[% field.key %]';
-            while ($k =~ m/[.]/)
-            {
-              $k =~ s/[.](\w*)(.*)$/: {$1 $2}/;
-            }
-            $k =~ s/import_data/import_data./;
-            print "{$k},\n";
-          [%~ END ~%]
-        [% END %]
-        {
-          sprite_img: function()
-          {
-            if (this.sprite.current == null)
-              return $("<img/>").get(0)
-
-            return this.sprite.current.sprite
-          },
-          sprite_frame: function()
-          {
-            return floor(this.sprite.frame)
-          },
-        }
-      )
-
-      result.sprite = sprite_catalog[result.sprite.name].clone()
-      result.sprite.frame = import_data.sf
-      result.sprite.current = result.sprite.animations[import_data.sc]
-      return result;
-    }
 
     if ($.isFunction(this.cb_data))
       this.cb_data = this.cb_data()
