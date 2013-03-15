@@ -7,7 +7,6 @@
 
       frames: 1,
       frame_inc: 1/8,
-      frame: 0,
       can_interrupt: true,
       loop: true,
 
@@ -49,6 +48,35 @@
       {
         return self.img
       }
+    }
+
+    var did_last_frame = false
+    var frame = 0
+
+    this.reset = function()
+    {
+      frame = 0
+      did_last_frame = false
+    }
+
+    this.was_last_frame = function()
+    {
+      return did_last_frame
+    }
+
+    this.frame = function()
+    {
+      frame += this.frame_inc || 1
+
+      did_last_frame = false
+
+      if (frame >= this.frames)
+      {
+        frame -= this.frames
+        did_last_frame = true
+      }
+
+      return did_last_frame
     }
     [% END %]
   }

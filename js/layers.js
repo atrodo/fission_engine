@@ -28,7 +28,7 @@
         try
         {
           var phys = self.all_physics[phy_obj]
-          var anim = phys.sprite.current
+          var anim = phys.get_animation()
           anim.x = phys.x
           anim.y = phys.y
           anim.flip_xw = phys.flags.facing_left;

@@ -1,5 +1,3 @@
-  var sprite_catalog = {}
-
   function Sprite(options)
   {
     $.extend(this, {
@@ -9,12 +7,7 @@
 
       current: null,
       next: null,
-
-      isa_clone: false,
     }, options);
-
-    //if ($.type(this.name) != "string")
-    //  throw "Must provide a sprite name";
 
     if ($.type(this.animations) == "array")
     {
@@ -35,95 +28,71 @@
     if (!(this.default instanceof Animation))
       throw "Must provide a default Animation";
 
-    this.clone = function()
-    {
-      var result = $.extend({}, this);
-      result.isa_clone = true;
+    $.extend(this, {
+      get_animation: function()
+      {
+        return this.current
+      },
 
-      $.extend(result, {
-        img: function()
+      set_next: function(next)
+      {
+        if ($.type(next) == "string")
+          next = this.animations[next];
+
+        if (next == null)
         {
-          return this.current.get_img();
-        },
+          this.next = null;
+          return;
+        }
 
-        current_frame: function()
+        if (!(next instanceof Animation))
+          return;
+
+        if (this.next != null)
+          return;
+
+        this.next = next
+      },
+
+      frame: function()
+      {
+        this.current.frame()
+        if (this.current.was_last_frame())
         {
-          return floor(this.current.frame)
-        },
-
-        set_next: function(next)
-        {
-          if ($.type(next) == "string")
-            next = this.animations[next];
-
+          var next = this.next
           if (next == null)
           {
-            this.next = null;
-            return;
-          }
-
-          if (!(next instanceof Animation))
-            return;
-
-          if (this.next != null)
-            return;
-
-          this.next = next
-        },
-
-        next_frame: function(done_cb)
-        {
-          this.current.frame += this.current.frame_inc || 1
-          if (this.current.frame >= this.current.frames)
-          {
-            if ($.isFunction(done_cb))
-              done_cb.call(this)
-
-            var next = this.next
-            if (next == null)
+            if (this.current.loop)
             {
-              if (this.current.loop)
-              {
-                next = this.current
-              } else {
-                next = this.default
-              }
-            }
-
-            if (this.current == next)
-            {
-              this.current.frame -= this.current.frames
+              next = this.current
             } else {
-              this.current.frame = 0
+              next = this.default
             }
-
-            this.current = next
-            this.next = null
           }
-          else if (this.current.can_interrupt && this.next != null)
+
+          if (this.current != next)
           {
-            if (this.next != this.current)
-            {
-              this.current = this.next
-              this.current.frame = 0
-            }
-            this.next = null
+            next.reset()
           }
+
+          this.current = next
+          this.next = null
         }
-      });
+        else if (this.current.can_interrupt && this.next != null)
+        {
+          if (this.next != this.current)
+          {
+            this.next.reset()
+          }
+          this.next = null
+        }
+      }
+    });
 
-      var next = result.next;
-      result.next = null;
-      result.set_next(next);
-
-      return result;
-    }
+    this.set_next(this.next);
 
     if (this.current == undefined)
       this.current = this.default;
-
-    if (this.name)
-      sprite_catalog[this.name] = this;
   }
 
   Sprite.empty_sprite = new Sprite({

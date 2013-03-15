@@ -34,7 +34,7 @@
         max_momentum_y: false,
       },
 
-      sprite: null,
+      animation: null,
       input: new Input(),
       ai: null,
 
@@ -49,14 +49,23 @@
       },
     }, options, extra || {})
 
-    if ($.type(this.sprite) == "string")
-      this.sprite = sprite_catalog[this.sprite];
+    if ($.isFunction(this.animation))
+    {
+      this.animation = new Animation({
+        xw: this.xw * [% tiles_xw %],
+        yh: this.yh * [% tiles_yh %],
+        get_gfx: this.animation,
+      })
+    }
 
-    if (!(this.sprite instanceof Sprite))
-      throw "Must provide a valid Sprite";
+    if (!(this.animation instanceof Animation))
+    {
+      if (this.animation == undefined)
+        throw "Physics Animation must be passed";
 
-    this.sprite = this.sprite.clone()
-
+      if (!$.isFunction(this.animation.get_animation) && !$.isFunction(this.animation.frame))
+      throw "Invalid Physics Animation, missing get_animation() or frame()";
+    }
 
     if ($.isFunction(this.cb_data))
       this.cb_data = this.cb_data()
@@ -82,7 +91,6 @@
 
         full_collide: null,
         init: function() {},
-        sprite_done:  function() {},
         removed: function() {},
     }, this.callback)
 
@@ -480,48 +488,51 @@
         var was_m = this.is_m();
 
         // Handle all the momentums
-        if (!this.next_frame.momentum_x)
+        if (this.flags.reduce_momentum)
         {
-          if (pos_info.hit_floor)
-            this.momentum_x -= 2
+          if (!this.next_frame.momentum_x)
+          {
+            if (pos_info.hit_floor)
+              this.momentum_x -= 2
+            else
+              this.momentum_x -= 1
+          }
           else
-            this.momentum_x -= 1
-        }
-        else
-        {
-          this.momentum_x += this.next_frame.momentum_x
-        }
+          {
+            this.momentum_x += this.next_frame.momentum_x
+          }
 
-        if (pos_info.hit_wall)
-        {
-          this.momentum_x = 0
-        }
+          if (pos_info.hit_wall)
+          {
+            this.momentum_x = 0
+          }
 
-        this.momentum_x = min(this.momentum_x, momentum_bounds.max_momentum_x)
-        this.momentum_x = max(momentum_bounds.min_momentum_x, this.momentum_x)
+          this.momentum_x = min(this.momentum_x, momentum_bounds.max_momentum_x)
+          this.momentum_x = max(momentum_bounds.min_momentum_x, this.momentum_x)
 
-        if (pos_info.hit_floor)
-        {
-          this.momentum_y = 0
-          this.current_j = 0
-        }
-        if (pos_info.hit_ceiling)
-        {
-          this.momentum_y = 0
-          this.current_j = this.max_jump
-        }
+          if (pos_info.hit_floor)
+          {
+            this.momentum_y = 0
+            this.current_j = 0
+          }
+          if (pos_info.hit_ceiling)
+          {
+            this.momentum_y = 0
+            this.current_j = this.max_jump
+          }
 
-        var at_max_jump = this.current_j >= this.max_jump
-        if (!this.next_frame.momentum_y || at_max_jump)
-        {
-          this.current_j = this.max_jump
-          this.momentum_y -= 1
-          this.momentum_y = min(this.momentum_y, momentum_bounds.max_momentum_y)
-          this.momentum_y = max(momentum_bounds.min_momentum_y, this.momentum_y)
-        }
-        else
-        {
-          this.momentum_y += this.next_frame.momentum_y
+          var at_max_jump = this.current_j >= this.max_jump
+          if (!this.next_frame.momentum_y || at_max_jump)
+          {
+            this.current_j = this.max_jump
+            this.momentum_y -= 1
+            this.momentum_y = min(this.momentum_y, momentum_bounds.max_momentum_y)
+            this.momentum_y = max(momentum_bounds.min_momentum_y, this.momentum_y)
+          }
+          else
+          {
+            this.momentum_y += this.next_frame.momentum_y
+          }
         }
 
         m_stats = $.extend(m_stats, {
@@ -549,10 +560,7 @@
         }
 
         // Handle the sprite/frame
-        this.sprite.next_frame(function()
-        {
-          self.callback.sprite_done.call(self);
-        });
+        this.animation.frame()
 
         this.next_frame = {
           momentum_x: false,
@@ -581,7 +589,7 @@
           speed: null,
           fall: null,
 
-          sprite: "empty",
+          //animation: "empty",
 
           solid: false,
           reduce_momentum: true,
@@ -611,10 +619,11 @@
 
           min_momentum_y: attack_obj.min_momentum_y,
 
-          sprite: attack_obj.sprite,
+          //sprite: attack_obj.sprite,
 
           callback: {
             full_collide: attack_obj.collide,
+            /*
             sprite_done: function()
             {
               if (frame_number >= attack_obj.frames)
@@ -622,6 +631,7 @@
 
               frame_number += attack_obj.frame_inc
             },
+            */
             removed: function()
             {
               deferred.resolve()
@@ -664,6 +674,13 @@
         return deferred.promise();
       },
     });
+
+    this.get_animation = function()
+    {
+      if (this.animation instanceof Animation)
+        return this.animation
+      return this.animation.get_animation()
+    }
 
     this.set_layer = function(new_layer)
     {
