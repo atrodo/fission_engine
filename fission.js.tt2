@@ -70,6 +70,7 @@
     [% INCLUDE js/input.js %]
 
     [% WRAPPER scope %]
+      [% PROCESS INCLUDE_MAYBE file="${game_prefix}.js" %]
       [% PROCESS INCLUDE_MAYBE file="$game_js/sprites.js" %]
       [% PROCESS INCLUDE_MAYBE file="$game_js/game_setup.js" %]
       [% PROCESS INCLUDE_MAYBE file="$game_js/game_runtime.js" %]
