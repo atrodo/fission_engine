@@ -1,6 +1,11 @@
   function Animation(options)
   {
     [% WRAPPER per_second name="New Animations" %]
+    if ($.isFunction(options))
+    {
+      options = { get_gfx: options };
+    }
+
     $.extend(this, {
       name: null,
       img: null,
