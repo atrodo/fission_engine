@@ -171,7 +171,7 @@
 
         self.foreach_active_layer(function(layer)
         {
-          layer.process_physics()
+          layer.process_frame()
         })
 
         if (reset_last_frame)

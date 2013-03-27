@@ -4,8 +4,13 @@
       name: null,
       group_name: null,
       bg: null,
+
+      all_animations: [],
       chunks: null,
       all_physics: [],
+
+      events: new Events(),
+
     }, options);
 
     if (this.name == undefined)
@@ -20,6 +25,25 @@
 
       var context = stage.context
       var tiles = runtime.tiles
+
+      for (var anim_obj in self.all_animations)
+      {
+        context.save()
+
+        try
+        {
+          var anim = self.all_animations[anim_obj]
+          stage.draw_animation(anim, cou)
+        }
+        catch (e)
+        {
+          console.log("exception:", e)
+        }
+        finally
+        {
+          context.restore()
+        }
+      }
 
       for (var phy_obj in self.all_physics)
       {
@@ -56,6 +80,43 @@
           context.restore()
         }
       }
+    }
+
+    self.add_animation = function(new_anim)
+    {
+      if (!(new_anim instanceof Animation))
+      {
+        new_anim = new Animation($.extend({}, new_anim));
+      }
+
+      if ($.inArray(new_anim, self.all_animations) == -1)
+        self.all_animations.push(new_anim)
+    }
+
+    self.remove_animation = function(old_anim)
+    {
+      var remove_one = function(current_anim)
+      {
+        $.each(self.all_animations, function(i, anim)
+        {
+          if (anim == undefined)
+            return
+
+          if (anim.flags.destroy_with_owner && anim.owner == current_anim)
+          {
+            remove_one(anim)
+          }
+          if (anim == current_anim)
+          {
+             delete self.all_animations[i]
+             anim.set_layer(null)
+          }
+        })
+      }
+
+      remove_one(old_anim)
+
+      self.all_animations = compact_array(self.all_animations)
     }
 
     self.add_physics = function(new_phys)
@@ -96,8 +157,20 @@
       self.all_physics = compact_array(self.all_physics)
     }
 
-    self.process_physics = function()
+    self.process_frame = function()
     {
+      self.events.emit('frame_logic')
+
+      for (var anim_obj in self.all_animations)
+      {
+        var anim = self.all_animations[phy_obj]
+
+        if (anim == null)
+          continue
+
+        anim.frame()
+      }
+
       for (var phy_obj in self.all_physics)
       {
         var phys = self.all_physics[phy_obj]
