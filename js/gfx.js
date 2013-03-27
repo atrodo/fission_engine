@@ -57,6 +57,15 @@
 
           var img = anim.get_gfx()
 
+          if (!img)
+            return;
+
+          if (!(img instanceof Gfx))
+          {
+            warn(img, " is not an Gfx, ignoring");
+            return;
+          }
+
           if (anim.flip_xw)
           {
             context.scale(-1, 1)
