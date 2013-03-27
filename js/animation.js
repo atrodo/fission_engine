@@ -14,6 +14,8 @@
       frame_y: null,
       x: 0,
       y: 0,
+
+      is_tile_sized: false,
       xw: 1,
       yh: 1,
 
@@ -24,6 +26,13 @@
     }, options);
 
     var self = this;
+
+    if (this.is_tile_sized)
+    {
+      this.xw *= runtime.tiles.tiles_xw
+      this.yh *= runtime.tiles.tiles_yh
+      delete this.is_tile_sized
+    }
 
     this.gfx = new Gfx(this.xw, this.yh)
 
