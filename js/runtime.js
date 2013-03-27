@@ -25,6 +25,7 @@
     var self = this;
 
     var physics_timing = 40
+    this.fps = floor(1000 / physics_timing)
 
     [% IF show_timings %]
     var fps_span = $("<span/>")
@@ -155,15 +156,22 @@
 
     var bot = Date.now()
     var last_frame = bot;
+    var frame_number = 0;
 
     var physics = function(reset_last_frame)
     {
       var now = Date.now();
 
+      var frames_done = 0
+
       while (last_frame < now)
       {
         [% WRAPPER per_second name="Physics" %]
         last_frame += physics_timing
+        frame_number++
+
+        if (frame_number % (self.fps * 10) == 0)
+          warn("Frame: ", frame_number);
 
         runtime.events.emit('input_frame')
 
@@ -175,6 +183,10 @@
         })
 
         if (reset_last_frame)
+          last_frame = now;
+
+        frames_done++
+        if (frames_done > [% bankrupt_frames %])
           last_frame = now;
 
         [% END %]
@@ -212,6 +224,11 @@
     anim_frame(frame_requested)
 
     /* */
+
+    self.get_frame = function()
+    {
+      return frame_number
+    }
 
     var name_match = /^(\w*)[.](.*)$/
     self.add_layer = function(name, layer)
