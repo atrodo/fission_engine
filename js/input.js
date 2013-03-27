@@ -103,6 +103,22 @@
       })
     }
 
+    this.activate_action = function(action)
+    {
+      if (action == undefined)
+        return
+
+      active_actions[action] = $.merge([], actions[action].cb)
+    }
+
+    this.deactivate_action = function(action)
+    {
+      if (action == undefined)
+        return
+
+      delete active_actions[action]
+    }
+
     runtime.events.on('input_frame', this.frame)
 
     this.register_action("right", "right")
@@ -113,6 +129,8 @@
 
     if (this.listen)
     {
+      var self = this;
+
       $(document).bind("keydown", function(e)
       {
         var action = bounds[nice_name(e)]
@@ -121,8 +139,7 @@
           return
 
         e.preventDefault();
-
-        active_actions[action] = $.merge([], actions[action].cb)
+        self.activate_action(action)
       });
 
       $(document).bind("keyup", function(e)
@@ -133,8 +150,7 @@
           return
 
         e.preventDefault();
-
-        delete active_actions[action]
+        self.deactivate_action(action)
       });
     }
 
