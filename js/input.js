@@ -72,6 +72,12 @@
     }
     this.add_action = function(added_action, cb)
     {
+      if ($.isPlainObject(added_action))
+      {
+        $.each(added_action, this.add_action)
+        return
+      }
+
       var action = actions[added_action]
       if (action == undefined)
         return
