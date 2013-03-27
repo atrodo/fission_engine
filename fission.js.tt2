@@ -68,6 +68,7 @@
     [% INCLUDE js/ai.js %]
     [% INCLUDE js/runtime.js %]
     [% INCLUDE js/layers.js %]
+    [% INCLUDE js/cooldown.js %]
     [% INCLUDE js/input.js %]
 
     [% WRAPPER scope %]

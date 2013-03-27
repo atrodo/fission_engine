@@ -91,10 +91,34 @@
       {
         $.each(cbs, function(i, cb)
         {
+          if (cb instanceof Cooldown)
+          {
+            cbs[i] = cb.frame()
+            return;
+          }
+
           if (!$.isFunction(cb))
             return
 
-          var result = cb()
+          var result
+          try
+          {
+            result = cb()
+          }
+          catch (e)
+          {
+            if (e instanceof Cooldown)
+              result = e
+            else
+              throw e
+          }
+
+          if (result instanceof Cooldown)
+          {
+            result.set_result(cb)
+            cbs[i] = result
+          }
+
           if (result === false)
           {
             delete cbs[i]
