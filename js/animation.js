@@ -39,7 +39,15 @@
       delete this.is_tile_sized
     }
 
-    this.gfx = new Gfx(this.xw, this.yh)
+    if (this.gfx instanceof Gfx && this.get_gfx == undefined)
+    {
+      this.get_gfx = function() { return this.gfx }
+      this.xw = this.gfx.xw()
+      this.yh = this.gfx.yh()
+    }
+
+    if (this.gfx == undefined)
+      this.gfx = new Gfx(this.xw, this.yh)
 
     if (this.get_gfx == undefined)
     {
