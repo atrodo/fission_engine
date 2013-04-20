@@ -56,6 +56,8 @@
 
         try
         {
+          var img = anim.get_gfx()
+
           var x = anim.frame_x
           var y = anim.frame_y
 
@@ -63,8 +65,6 @@
             x = ((anim.x - cou.x) * runtime.tiles.tiles_xw)
           if (y == undefined)
             y = ((anim.y - cou.y) * runtime.tiles.tiles_yh)
-
-          var img = anim.get_gfx()
 
           if (!img)
             return;
