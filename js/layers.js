@@ -3,6 +3,7 @@
     $.extend(this, {
       name: null,
       group_name: null,
+      active: true,
       bg: null,
 
       all_animations: [],
@@ -18,8 +19,21 @@
 
     var self = this;
 
+    self.activate = function()
+    {
+      self.active = true
+    }
+
+    self.deactivate = function()
+    {
+      self.active = false
+    }
+
     self.repaint = function(stage, cou)
     {
+      if (!self.active)
+        return
+
       if (self.bg instanceof Animation)
         stage.draw_animation(self.bg, cou)
 
@@ -159,6 +173,9 @@
 
     self.process_frame = function()
     {
+      if (!self.active)
+        return
+
       self.events.emit('frame_logic')
 
       for (var anim_obj in self.all_animations)
