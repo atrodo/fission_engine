@@ -2,6 +2,8 @@
   {
     $.extend(true, this, {
       listen: false,
+      default_actions: true,
+      default_adv_actions: false,
     }, options);
 
     var actions = { }
@@ -145,13 +147,19 @@
 
     runtime.events.on('input_frame', this.frame)
 
-    this.register_action("right", "right")
-    this.register_action("left",  "left")
-    this.register_action("up",    "up")
-    this.register_action("down",  "down")
-    this.register_action("jump",  "space")
-    this.register_action("atk_pri", "x")
-    this.register_action("atk_sec", "z")
+    if (this.default_actions)
+    {
+      this.register_action("right", "right")
+      this.register_action("left",  "left")
+      this.register_action("up",    "up")
+      this.register_action("down",  "down")
+    }
+    if (this.default_adv_actions)
+    {
+      this.register_action("jump",  "space")
+      this.register_action("atk_pri", "x")
+      this.register_action("atk_sec", "z")
+    }
 
     if (this.listen)
     {
