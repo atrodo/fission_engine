@@ -15,6 +15,11 @@
         return self
       }
 
+      self.reset_transform = function()
+      {
+        self.context.setTransform(1, 0, 0, 1, 0, 0)
+      }
+
       self.reset = function()
       {
         self.clear()
@@ -25,7 +30,11 @@
         c.fillStyle = '#000'
         c.strokeStyle = '#000'
         c.font = '10px sans-serif'
-        c.setTransform(1, 0, 0, 1, 0, 0)
+
+        c.shadowColor = 'rgba(0,0,0,0)'
+        c.shadowBlur = 0
+
+        self.reset_transform()
 
         return self
       }
