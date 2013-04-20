@@ -231,17 +231,11 @@
     }
 
     var name_match = /^(\w*)[.](.*)$/
-    self.add_layer = function(name, layer)
+    self.find_group = function(name)
     {
       var name_split = name.match(name_match)
       var group_name = name_split[1]
-      name = name_split[2]
-
-      if (!(layer instanceof Layer) && $.type(layer) == "object")
-      {
-        $.extend(layer, {name: name, group_name: group})
-        layer = new Layer(layer)
-      }
+      var layer_name = name_split[2]
 
       var group = null;
       $.each(self.layer_groups, function(i, layer_group)
@@ -259,9 +253,56 @@
         self.layer_groups.push(group)
       }
 
+      return group
+    }
+
+    self.find_layer = function(name)
+    {
+      var name_split = name.match(name_match)
+      var group_name = name_split[1]
+      var layer_name = name_split[2]
+
+      var group = self.find_group(name)
+
+      var result;
+
+      $.each(group.layers, function(i, layer)
+      {
+        if (layer.name == layer_name)
+        {
+          result = layer
+          return false;
+        }
+      })
+
+      return result
+    }
+
+    self.add_layer = function(name, layer)
+    {
+      var name_split = name.match(name_match)
+      var group_name = name_split[1]
+      var layer_name = name_split[2]
+
+      var group = self.find_group(name)
+
+      if (!(layer instanceof Layer) && $.type(layer) == "object")
+      {
+        $.extend(layer, {name: layer_name, group_name: group.name})
+        layer = new Layer(layer)
+      }
+
+      layer.group_name = group.name
+
       group.layers.push(layer)
 
       return layer
+    }
+
+    self.deactivate_group = function(name)
+    {
+      var group = self.find_group(name)
+      group.active = false;
     }
 
     self.foreach_active_layer = function(callback)
