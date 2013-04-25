@@ -70,6 +70,7 @@
     [% INCLUDE js/layers.js %]
     [% INCLUDE js/cooldown.js %]
     [% INCLUDE js/input.js %]
+    [% INCLUDE js/noise.js %]
 
     [% WRAPPER scope %]
       [% PROCESS INCLUDE_MAYBE file="${game_prefix}.js" %]
