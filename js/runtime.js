@@ -1,8 +1,10 @@
   function Runtime(options)
   {
     $.extend(this, {
-      width:  640,
-      height: 480,
+      width:  [% width %],
+      height: [% height %],
+      trax_x: [% widht / 2 %],
+      trax_y: [% height / 2 %],
 
       //
       chunks: new Chunks(),
