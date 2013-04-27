@@ -129,6 +129,9 @@
           if (c == undefined)
             continue;
 
+          if (tiles[c.tile] == undefined)
+            continue;
+
           bg_c.drawImage(
             tiles[c.tile].background,
             x * tiles.tiles_xw - tiles.tiles_bd,
