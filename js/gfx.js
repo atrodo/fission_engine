@@ -62,9 +62,9 @@
           var y = anim.frame_y
 
           if (x == undefined)
-            x = ((anim.x - cou.x) * runtime.tiles.tiles_xw)
+            x = ((anim.x - cou.x) * runtime.tiles.tiles_xw) + runtime.trans_x
           if (y == undefined)
-            y = ((anim.y - cou.y) * runtime.tiles.tiles_yh)
+            y = ((anim.y - cou.y) * runtime.tiles.tiles_yh) + runtime.trans_y
 
           if (!img)
             return;

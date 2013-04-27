@@ -128,7 +128,8 @@
       try
       {
         context.save()
-        context.translate(self.width * (1/2), self.height * (1/2))
+        //context.translate(self.width * (1/2), self.height * (1/2))
+        context.translate(0, self.height);
         context.scale(1, -1)
 
         self.foreach_active_layer(function(layer)
