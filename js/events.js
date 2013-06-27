@@ -1,6 +1,34 @@
   function Events()
   {
     var listeners = {}
+    var self = this;
+
+    var run_apply = function(cb, args)
+    {
+      try
+      {
+        if (cb instanceof Cooldown)
+        {
+          // Cooldown returns itself or a function
+          var cd = cb.frame()
+
+          if (cd != cb)
+          {
+            cb.reset()
+            cb = cd
+          }
+        }
+
+        if ($.isFunction(cb))
+        {
+          return cb.apply(self, args)
+        }
+      }
+      catch(e)
+      {
+        warn(e);
+      }
+    }
 
     $.extend(this, {
       on: function(type, cb)
@@ -13,11 +41,31 @@
       },
       once: function(type, cb)
       {
-        this.on(type, function observer()
+        var cd_observer = function()
+        {
+          var c = cb.frame()
+          if (c != cb)
+          {
+            this.off(type, cd_observer)
+            return c.apply(this, arguments)
+          }
+        }
+
+        var observer = function()
         {
           this.off(type, observer)
-          cb.apply(this, arguments)
-        })
+          return cb.apply(this, arguments)
+        }
+
+        if (cb instanceof Cooldown)
+        {
+          this.on(type, cd_observer)
+        }
+        else
+        {
+          this.on(type, observer)
+        }
+
         return this;
       },
       exists: function(type)
@@ -39,10 +87,7 @@
         var cbs = listeners[type].slice()
         while (cbs.length > 0)
         {
-          try
-          {
-            result.push(cbs.shift().apply(this, args))
-          } catch (e) { console.log(e) }
+          result.push(run_apply(cbs.shift(), args))
         }
 
         return result
