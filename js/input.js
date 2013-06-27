@@ -1,10 +1,12 @@
   function Input(options)
   {
     $.extend(true, this, {
-      listen: false,
+      layer: null,
       default_actions: true,
       default_adv_actions: false,
     }, options);
+
+    var self = this;
 
     var actions = { }
     var bounds = {}
@@ -145,7 +147,7 @@
       delete active_actions[action]
     }
 
-    runtime.events.on('input_frame', this.frame)
+    //runtime.events.on('input_frame', this.frame)
 
     if (this.default_actions)
     {
@@ -161,32 +163,65 @@
       this.register_action("atk_sec", "z")
     }
 
-    if (this.listen)
+    this.set_layer = function(new_layer)
     {
-      var self = this;
+      if (new_layer == this.layer)
+        return;
 
-      $(document).bind("keydown", function(e)
+      var old_layer = this.layer
+
+      this.layer = null
+
+      if (old_layer instanceof Layer)
       {
-        var action = bounds[nice_name(e)]
+        old_layer.remove_input(this);
+      }
 
-        if (action == undefined)
-          return
-
-        e.preventDefault();
-        self.activate_action(action)
-      });
-
-      $(document).bind("keyup", function(e)
+      if (new_layer == null)
       {
-        var action = bounds[nice_name(e)]
+        return;
+      }
 
-        if (action == undefined)
-          return
+      if (!(new_layer instanceof Layer))
+        throw new Error("Must pass a Layer to set_layer")
 
-        e.preventDefault();
-        self.deactivate_action(action)
-      });
+      this.layer = new_layer;
+
+      this.layer.add_input({
+        "frame": function()
+        {
+          self.frame();
+        },
+        "keydown": function(e)
+        {
+          var action = bounds[nice_name(e)]
+
+          if (action == undefined)
+            return
+
+          e.preventDefault();
+          self.activate_action(action)
+        },
+
+        "keyup": function(e)
+        {
+          var action = bounds[nice_name(e)]
+
+          if (action == undefined)
+            return
+
+          e.preventDefault();
+          self.deactivate_action(action)
+        },
+
+      })
+
+      return;
     }
+
+    var first_layer = this.layer;
+    this.layer = null;
+    this.set_layer(first_layer);
 
     [% IF engine_input %]
     this.register_action('force_up', 'a', function()

@@ -201,6 +201,22 @@
       runtime.events.emit('runtime.maintaince', get_cou())
     }
 
+    $(document).bind("keydown", function(e)
+    {
+      self.foreach_active_layer(function(layer)
+      {
+        layer.process_keydown(e)
+      })
+    })
+
+    $(document).bind("keyup", function(e)
+    {
+      self.foreach_active_layer(function(layer)
+      {
+        layer.process_keyup(e)
+      })
+    })
+
     var maintain_interval
     var phys_interval
     var process_painting = false

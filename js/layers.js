@@ -9,6 +9,7 @@
       all_animations: [],
       chunks: null,
       all_physics: [],
+      all_inputs: [],
 
       events: new Events(),
 
@@ -171,10 +172,46 @@
       self.all_physics = compact_array(self.all_physics)
     }
 
+    self.add_input = function(new_input)
+    {
+      if (!$.isFunction(new_input.frame) || !$.isFunction(new_input.keydown)
+        || !$.isFunction(new_input.keyup))
+      {
+        throw "New inputs must implement frame, keydown and frame";
+      }
+
+      if ($.inArray(new_input, self.all_inputs) == -1)
+        self.all_inputs.push(new_input)
+      return self;
+    }
+
+    self.remove_input = function(old_input)
+    {
+      $.each(self.all_inputs, function(i, input)
+      {
+        if (phys == current_phys)
+        {
+           delete self.all_inputs[i]
+        }
+      })
+
+      self.all_inputs = compact_array(self.all_inputs)
+    }
+
     self.process_frame = function()
     {
       if (!self.active)
         return
+
+      for (var input_obj in self.all_inputs)
+      {
+        var input = self.all_inputs[input_obj]
+
+        if (input == null)
+          continue
+
+        input.frame()
+      }
 
       self.events.emit('frame_logic')
 
@@ -198,6 +235,32 @@
         phys.frame()
       }
       return
+    }
+
+    self.process_keydown = function(e)
+    {
+      for (var input_obj in self.all_inputs)
+      {
+        var input = self.all_inputs[input_obj]
+
+        if (input == null)
+          continue
+
+        input.keydown(e)
+      }
+    }
+
+    self.process_keyup = function(e)
+    {
+      for (var input_obj in self.all_inputs)
+      {
+        var input = self.all_inputs[input_obj]
+
+        if (input == null)
+          continue
+
+        input.keyup(e)
+      }
     }
 
   }
