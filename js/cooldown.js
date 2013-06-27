@@ -1,5 +1,5 @@
   var seconds_match = /^(\d)*s$/;
-  function Cooldown(frames)
+  function Cooldown(frames, inital_result)
   {
     frames = frames || 10
     if ($.type(frames) == "string")
@@ -21,6 +21,10 @@
     {
       result = new_result
     }
+
+    if ($.isFunction(inital_result))
+      this.set_result(inital_result)
+
     this.frame = function()
     {
       frames--
@@ -29,6 +33,14 @@
       return this
     }
 
+    this.reset = function()
+    {
+      frames = total
+    }
+    this.is_done = function()
+    {
+      return frames >= total
+    }
     this.get_remaining = function()
     {
       return total - frames
