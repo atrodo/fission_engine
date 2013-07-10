@@ -332,7 +332,10 @@
         {
           $.each(group.layers, function(i, layer)
           {
-            callback(layer);
+            if (layer.active)
+            {
+              callback(layer);
+            }
           });
         }
       });
