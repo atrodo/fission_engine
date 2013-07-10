@@ -22,13 +22,35 @@
 
     self.activate = function()
     {
-      self.active = true
+      if (!self.active)
+      {
+        self.active = true
+        self.events.emit('activate')
+      }
     }
 
     self.deactivate = function()
     {
-      self.active = false
+      if (self.active)
+      {
+        self.active = false
+        self.events.emit('deactivate')
+      }
     }
+
+    runtime.events.on('start_runtime', function()
+    {
+      if (self.active)
+      {
+        self.active = false;
+        self.activate();
+      }
+      else
+      {
+        self.active = true;
+        self.deactivate();
+      }
+    })
 
     self.repaint = function(stage, cou)
     {
