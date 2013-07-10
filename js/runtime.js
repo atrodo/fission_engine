@@ -352,6 +352,8 @@
       maintain_interval  = setInterval(maintaince, 1000);
       phys_interval    = setInterval(physics, physics_timing);
       process_painting = true;
+
+      self.events.emit('start_runtime');
     }
 
     self.stop_runtime = function()
@@ -360,6 +362,8 @@
       clearInterval(maintain_interval)
       clearInterval(phys_interval)
       process_painting = false;
+
+      self.events.emit('stop_runtime');
     }
 
     self.events.on('preload_done', function()
