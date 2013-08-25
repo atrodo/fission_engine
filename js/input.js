@@ -4,6 +4,7 @@
       layer: null,
       default_actions: true,
       default_adv_actions: false,
+      active: true,
     }, options);
 
     var self = this;
@@ -101,6 +102,9 @@
             return;
           }
 
+          if (!self.active || !self.layer.active_input)
+            return;
+
           if (!$.isFunction(cb))
             return
 
@@ -129,6 +133,16 @@
           }
         })
       })
+    }
+
+    this.activate = function()
+    {
+      this.active = true
+    }
+
+    this.deactivate = function()
+    {
+      this.active = false
     }
 
     this.activate_action = function(action)

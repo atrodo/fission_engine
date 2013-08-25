@@ -4,6 +4,7 @@
       name: null,
       group_name: null,
       active: true,
+      active_input: true,
       bg: null,
 
       all_animations: [],
@@ -36,6 +37,16 @@
         self.active = false
         self.events.emit('deactivate')
       }
+    }
+
+    self.activate_input = function()
+    {
+      self.active_input = true
+    }
+
+    self.deactivate_input = function()
+    {
+      self.active_input = false
     }
 
     runtime.events.on('start_runtime', function()
