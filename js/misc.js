@@ -68,3 +68,8 @@ var warn = function()
 {
   console.log.apply(console, arguments)
 }
+
+var die = function(e)
+{
+  throw new Error(e)
+}
