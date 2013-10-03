@@ -22,6 +22,13 @@
       result = new_result
     }
 
+    this.action_id = function()
+    {
+      if (result instanceof Action)
+        return result.id()
+      return
+    }
+
     this.set_result(inital_result)
 
     this.frame = function()

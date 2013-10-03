@@ -13,6 +13,8 @@ function Action(options)
     }
   }
 
+  var _id = guid()
+
   $.extend(true, this, {
     name: name,
     handler: $.noop,
@@ -24,6 +26,9 @@ function Action(options)
   }, options);
 
   var self = this;
+
+  self.id = function() { return _id; };
+  self.action_id = self.id
 
   self.trigger = function()
   {
