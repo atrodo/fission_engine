@@ -22,8 +22,7 @@
       result = new_result
     }
 
-    if ($.isFunction(inital_result))
-      this.set_result(inital_result)
+    this.set_result(inital_result)
 
     this.frame = function()
     {
