@@ -257,84 +257,9 @@ function Input(options)
     return;
   }
 
-  var first_layer = this.layer;
+  var init_layer = this.layer;
   this.layer = null;
-  this.set_layer(first_layer);
-
-  [% IF engine_input %]
-  this.register_action('force_up', 'a', function()
-  {
-    user.y += 2;
-  })
-  this.register_action('force_down', 'shift+a', function()
-  {
-    user.y -= 2;
-  })
-
-  this.register_action('show_frame', 't', function()
-  {
-    console.log('t');
-    runtime_frame();
-  })
-
-  this.register_action('show_all_phys', 'y', function()
-  {
-    //all_physics.pop()
-    console.log(all_physics)
-  })
-
-  this.register_action('remove_last_phys', 'shift+y', function()
-  {
-    all_physics.pop()
-    console.log(all_physics)
-  })
-
-  this.register_action('start_runtime','shift+q `', function()
-  {
-    start_runtime()
-  })
-
-  this.register_action('stop_runtime', 'q esc', function()
-  {
-    stop_runtime()
-  })
-
-  this.register_action('zoom_out', '-', function()
-  {
-    zoom = zoom / 2
-    console.log(zoom)
-  })
-
-  this.register_action('zoom_in', '+', function()
-  {
-    zoom = zoom * 2
-    console.log(zoom)
-  })
-
-  this.register_action('trans_l', 'h', function()
-  {
-    trans_x -= 200
-    console.log(trans_x, trans_y)
-  })
-
-  this.register_action('trans_r', 'l', function()
-  {
-    trans_x += 200
-    console.log(trans_x, trans_y)
-  })
-
-  this.register_action('trans_d', 'j', function()
-  {
-    trans_y -= 200
-    console.log(trans_x, trans_y)
-  })
-
-  this.register_action('trans_u', 'k', function()
-  {
-    trans_y += 200
-    console.log(trans_x, trans_y)
-  })
-  [% END %]
+  this.set_layer(init_layer);
 }
 
 function ActionGroup(options)
