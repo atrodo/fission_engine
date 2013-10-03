@@ -201,21 +201,18 @@
       runtime.events.emit('runtime.maintaince', get_cou())
     }
 
-    $(document).bind("keydown", function(e)
+    var input_listen = function(e)
     {
-      self.foreach_active_layer(function(layer)
-      {
-        layer.process_keydown(e)
-      })
-    })
+      e.preventDefault()
 
-    $(document).bind("keyup", function(e)
-    {
       self.foreach_active_layer(function(layer)
       {
-        layer.process_keyup(e)
+        layer.process_event(e)
       })
-    })
+    }
+
+    $(document).bind("keydown keyup", input_listen)
+    $(document).bind("click", input_listen)
 
     var maintain_interval
     var phys_interval

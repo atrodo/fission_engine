@@ -196,10 +196,9 @@
 
     self.add_input = function(new_input)
     {
-      if (!$.isFunction(new_input.frame) || !$.isFunction(new_input.keydown)
-        || !$.isFunction(new_input.keyup))
+      if (! $.isFunction(new_input.frame))
       {
-        throw "New inputs must implement frame, keydown and frame";
+        throw "New inputs must implement frame";
       }
 
       if ($.inArray(new_input, self.all_inputs) == -1)
@@ -259,7 +258,7 @@
       return
     }
 
-    self.process_keydown = function(e)
+    self.process_event = function(e)
     {
       for (var input_obj in self.all_inputs)
       {
@@ -268,20 +267,8 @@
         if (input == null)
           continue
 
-        input.keydown(e)
-      }
-    }
-
-    self.process_keyup = function(e)
-    {
-      for (var input_obj in self.all_inputs)
-      {
-        var input = self.all_inputs[input_obj]
-
-        if (input == null)
-          continue
-
-        input.keyup(e)
+        if ($.isFunction(input[e.type]))
+          input[e.type](e)
       }
     }
 
