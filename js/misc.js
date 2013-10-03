@@ -39,6 +39,15 @@ var min = function(a, b)
   return (a < b) ? a : b;
 }
 
+var guid
+[% WRAPPER scope %]
+  var _id = 0;
+  guid = function()
+  {
+    return _id++
+  }
+[% END %]
+
 var compact_array = function(old_all)
 {
   var new_all = []
