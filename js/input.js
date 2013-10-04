@@ -83,6 +83,11 @@ function Action(options, kb_trigger)
   {
     return self.handler()
   }
+
+  self.toString = function()
+  {
+    return self.action_name || self.id()
+  }
 }
 
 var triggers = {
