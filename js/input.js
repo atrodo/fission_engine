@@ -306,7 +306,8 @@ function Input(options)
       trigger_name  = trigger_name.id()
     }
 
-    delete active_actions[trigger_type][trigger_name]
+    if (trigger_type in active_actions)
+      delete active_actions[trigger_type][trigger_name]
   }
 
   this.trigger = function(trigger_name)
