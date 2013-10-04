@@ -157,7 +157,7 @@ function Input(options)
 
   var self = this;
 
-  var actions = []
+  var my_actions = []
   var active_actions = {}
   var indv_action_name = "-"
 
@@ -242,7 +242,7 @@ function Input(options)
       die("Must pass Action or String to add_action");
     }
 
-    actions.push(action)
+    my_actions.push(action)
   }
 
   var get_trigger_type = function(trigger_type)
@@ -276,7 +276,7 @@ function Input(options)
       trigger_name  = trigger_name.id()
     }
 
-    var cur_actions = $.grep(actions, function(action)
+    var cur_actions = $.grep(my_actions, function(action)
     {
       if (action.triggers[trigger_type] == undefined)
         return false
@@ -322,7 +322,7 @@ function Input(options)
       trigger_name  = trigger_name.id()
     }
 
-    $.each(actions, function(i, action)
+    $.each(my_actions, function(i, action)
     {
       if (action.triggers[trigger_type] == undefined)
         return
