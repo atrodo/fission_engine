@@ -33,6 +33,9 @@ function Action(options, kb_trigger)
   self.id = function() { return _id; };
   self.action_id = self.id
 
+  if (!($.isFunction(self.handler)))
+    die("handler for Action must be a function", self.handler);
+
   self.setTrigger = function(trigger)
   {
     var found_type = false
@@ -204,13 +207,15 @@ function Input(options)
   this.trigger_on_key = function(action, key)
   {
     if ($.type(action) != "string")
-    {
       die("Must pass String to trigger_on_key");
-    }
 
     self.add_action(new Action({
       action_name: "",
-      handler: action,
+      handler: function()
+      {
+        self.trigger(action, triggers.kb)
+      },
+      input: self,
       triggers: {
         kb: key,
       }
@@ -323,89 +328,113 @@ function Input(options)
       trigger_name  = trigger_name.id()
     }
 
+    var trigger_actions = []
     $.each(my_actions, function(i, action)
     {
       if (action.triggers[trigger_type] == undefined)
         return
 
       if (action.triggers[trigger_type].check(trigger_name))
-        action.trigger()
+        trigger_actions.push(action)
+    })
+
+    process_actions(trigger_actions)
+  }
+
+  var done_actions = null;
+
+  var process_actions = function(actions)
+  {
+    $.each(actions, function(i, action)
+    {
+      if (action == undefined)
+        return
+
+      var is_done_actions = done_actions != null
+
+      var action_id
+
+      if ($.isFunction(action.action_id))
+      {
+        action_id = action.action_id()
+      }
+
+      if (action_id == undefined)
+        return
+
+      if (is_done_actions && action_id in done_actions)
+      {
+        actions[i] = done_actions[action_id]
+
+        if (done_actions[action_id] === false)
+        {
+          delete actions[i]
+        }
+
+        return
+      }
+
+      if (action instanceof Cooldown)
+      {
+        actions[i] = action.frame()
+
+        if (is_done_actions)
+          done_actions[action_id] = actions[i]
+
+        return;
+      }
+
+      if (!(action instanceof Action))
+        return
+
+      var result
+      try
+      {
+        result = action.trigger()
+      }
+      catch (e)
+      {
+        if (e instanceof Cooldown)
+          result = e
+        else
+          throw e
+      }
+
+      if (result instanceof Cooldown)
+      {
+        result.set_result(action)
+        actions[i] = result
+      }
+
+      if (is_done_actions)
+        done_actions[action_id] = result
+
+      if (result === false)
+      {
+        delete actions[i]
+      }
     })
   }
 
   this.frame = function()
   {
-    var done_actions = {}
+    if (done_actions != undefined)
+    {
+      done_actions = null
+      die("Input.frame was called inside of Input.frame")
+    }
+
+    done_actions = {}
 
     $.each(active_actions, function(trigger_type_name, triggers)
     {
       $.each(triggers, function(trigger_name, actions)
       {
-        $.each(actions, function(i, action)
-        {
-          if (action == undefined)
-            return
-
-          var action_id
-
-          if ($.isFunction(action.action_id))
-          {
-            action_id = action.action_id()
-          }
-
-          if (action_id == undefined)
-            return
-
-          if (action_id in done_actions)
-          {
-            actions[i] = done_actions[action_id]
-
-            if (done_actions[action_id] === false)
-            {
-              delete actions[i]
-            }
-
-            return
-          }
-
-          if (action instanceof Cooldown)
-          {
-            actions[i] = action.frame()
-            done_actions[action_id] = actions[i]
-            return;
-          }
-
-          if (!(action instanceof Action))
-            return
-
-          var result
-          try
-          {
-            result = action.trigger()
-          }
-          catch (e)
-          {
-            if (e instanceof Cooldown)
-              result = e
-            else
-              throw e
-          }
-
-          if (result instanceof Cooldown)
-          {
-            result.set_result(action)
-            actions[i] = result
-          }
-
-          done_actions[action_id] = result
-
-          if (result === false)
-          {
-            delete actions[i]
-          }
-        })
+        process_actions(actions)
       })
     })
+
+    done_actions = null
   }
 
   if (this.default_actions)
