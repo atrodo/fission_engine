@@ -310,7 +310,7 @@ function Input(options)
       delete active_actions[trigger_type][trigger_name]
   }
 
-  this.trigger = function(trigger_name)
+  this.trigger = function(trigger_name, trigger_type)
   {
     if ($.type(trigger_name) != "string" && !(trigger_name instanceof Action))
       return
