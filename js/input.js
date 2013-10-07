@@ -247,7 +247,8 @@ function Input(options)
       die("Must pass Action or String to add_action");
     }
 
-    my_actions.push(action)
+    if ($.inArray(action, my_actions) < 0)
+      my_actions.push(action)
   }
 
   var get_trigger_type = function(trigger_type)
