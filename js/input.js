@@ -563,6 +563,7 @@ function ActionGroup(options)
 
     self[self.length] = new_item
     self.length++
+    input.add_action(new_item)
   }
 
   self.get_current = function()
