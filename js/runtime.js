@@ -212,7 +212,7 @@
     }
 
     $(document).bind("keydown keyup", input_listen)
-    $(document).bind("click", input_listen)
+    $(stage.canvas).bind("click", input_listen)
 
     var maintain_interval
     var phys_interval

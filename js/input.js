@@ -497,6 +497,15 @@ function Input(options)
         self.deactivate_action(key, triggers.kb)
       },
 
+      "click": function(e)
+      {
+        var target_pos = $(e.currentTarget).position()
+        var x = e.pageX - target_pos.left
+        var y = e.pageY - target_pos.top
+
+        self.trigger(x + "," + y, triggers.click)
+      }
+
     })
 
     return;
