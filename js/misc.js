@@ -61,6 +61,13 @@ var compact_array = function(old_all)
   return new_all;
 }
 
+var combine_arrays = function(old_all)
+{
+  var result = []
+  result = Array.prototype.concat.apply(result, old_all)
+  return compact_array(result)
+}
+
 var count_object_keys = function(obj)
 {
   var result = 0;
