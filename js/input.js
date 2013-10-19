@@ -36,20 +36,39 @@ function Action(options, kb_trigger)
   if (!($.isFunction(self.handler)))
     die("handler for Action must be a function", self.handler);
 
-  self.setTrigger = function(trigger)
+  self.set_trigger = function(trigger, trigger_class)
   {
     var found_type = false
+    var new_trigger
+    var new_trigger_class
+
     $.each(triggers, function(trigger_name, trigger_type)
     {
       if (trigger instanceof trigger_type)
       {
-        self.triggers[trigger_name] = trigger
-        found_type = true
+        new_trigger = trigger
+        new_trigger_class = trigger_name
         return false;
       }
     })
 
-    if (found_type == false)
+    // We also accept arrays that will contain Actions for checking
+    if (   new_trigger == undefined
+        && trigger_class != undefined
+        && trigger.length != undefined)
+    {
+      $.each(triggers, function(trigger_name, trigger_type)
+      {
+        if (trigger_type == trigger_class)
+        {
+          new_trigger = trigger
+          new_trigger_class = trigger_name
+          return false;
+        }
+      })
+    }
+
+    if (new_trigger == undefined)
     {
       $.each(triggers, function(trigger_name, trigger_type)
       {
@@ -58,17 +77,23 @@ function Action(options, kb_trigger)
 
         if (result != undefined)
         {
-          self.triggers[trigger_name] = result
-          found_type = true
+          new_trigger = result
+          new_trigger_class = trigger_name
           return false;
         }
       })
     }
 
-    if (found_type == false)
+    if (new_trigger == undefined)
     {
       die("Could not find trigger type for " + trigger)
     }
+
+    if (trigger._action != undefined && trigger._action != self)
+      die("Trigger can only be assigned to one Action")
+
+    trigger._action = self
+    self.triggers[new_trigger_class] = trigger
   }
 
   $.each(self.triggers, function(trigger_name)
@@ -79,8 +104,32 @@ function Action(options, kb_trigger)
     if (trigger_name == "action")
       return
 
-    self.setTrigger(this)
+    self.set_trigger(this)
   })
+
+  self.check_trigger = function(trigger_type, trigger_name)
+  {
+    if (self.triggers[trigger_type] == undefined)
+      return
+
+    if (self.triggers[trigger_type].length != undefined)
+    {
+      var trigger_actions = []
+
+      $.each(self.triggers[trigger_type], function(i, action)
+      {
+        if ( !( action instanceof Action) )
+          return
+
+        var new_actions = action.check_trigger(trigger_type, trigger_name)
+        trigger_actions.push(new_actions)
+      })
+
+      return combine_arrays(trigger_actions)
+    }
+
+    return self.triggers[trigger_type].check(trigger_name)
+  }
 
   self.trigger = function()
   {
@@ -107,7 +156,8 @@ var triggers = {
 
     self.check = function(trigger_name)
     {
-      return trigger_name == key
+      if (trigger_name == key)
+        return self._action
     }
   },
 
@@ -134,10 +184,8 @@ var triggers = {
       if (   x >= self.x && x <= self.x + self.xw
           && y >= self.y && y <= self.y + self.yh )
       {
-        return true
+        return self._action
       }
-
-      return false
     }
   },
 }
@@ -146,7 +194,8 @@ var action_check = function(id)
 {
   this.check = function(trigger_name)
   {
-    return trigger_name == id
+    if (trigger_name == id)
+      return this._action
   }
 }
 
@@ -282,20 +331,20 @@ function Input(options)
       trigger_name  = trigger_name.id()
     }
 
-    var cur_actions = $.grep(my_actions, function(action)
+    var trigger_actions = []
+    $.each(my_actions, function(i, action)
     {
       if (action.triggers[trigger_type] == undefined)
-        return false
+        return
 
-      if (action.triggers[trigger_type].check(trigger_name))
-        return true
-
-      return false
+      var new_actions = action.check_trigger(trigger_type, trigger_name)
+      trigger_actions.push(new_actions)
     })
 
     if (active_actions[trigger_type] == undefined)
       active_actions[trigger_type] = {}
 
+    var cur_actions = combine_arrays(trigger_actions)
     active_actions[trigger_type][trigger_name] = cur_actions
   }
 
@@ -335,11 +384,11 @@ function Input(options)
       if (action.triggers[trigger_type] == undefined)
         return
 
-      if (action.triggers[trigger_type].check(trigger_name))
-        trigger_actions.push(action)
+      var new_actions = action.check_trigger(trigger_type, trigger_name)
+      trigger_actions.push(new_actions)
     })
 
-    process_actions(trigger_actions)
+    process_actions(combine_arrays(trigger_actions))
   }
 
   var done_actions = null;
@@ -547,6 +596,8 @@ function ActionGroup(options)
 
   self.clear()
 
+  self.splice = Array.prototype.splice
+
   self.push = function(new_item)
   {
     if ($.isFunction(new_item))
@@ -563,7 +614,6 @@ function ActionGroup(options)
 
     self[self.length] = new_item
     self.length++
-    input.add_action(new_item)
   }
 
   self.get_current = function()
@@ -600,4 +650,13 @@ function ActionGroup(options)
   input.add_action(new Action("prev",   self.prev,   key_prev))
   input.add_action(new Action("next",   self.next,   key_next))
   input.add_action(new Action("select", self.select, key_select))
+
+  var action_catch = new Action()
+  $.each(triggers, function(k, trigger_class)
+  {
+    action_catch.set_trigger(self, trigger_class)
+  });
+
+  input.add_action(action_catch)
+
 }
