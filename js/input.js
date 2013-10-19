@@ -55,7 +55,7 @@ function Action(options, kb_trigger)
     // We also accept arrays that will contain Actions for checking
     if (   new_trigger == undefined
         && trigger_class != undefined
-        && trigger.length != undefined)
+        && trigger instanceof Array )
     {
       $.each(triggers, function(trigger_name, trigger_type)
       {
@@ -89,11 +89,11 @@ function Action(options, kb_trigger)
       die("Could not find trigger type for " + trigger)
     }
 
-    if (trigger._action != undefined && trigger._action != self)
+    if (new_trigger._action != undefined && new_trigger._action != self)
       die("Trigger can only be assigned to one Action")
 
-    trigger._action = self
-    self.triggers[new_trigger_class] = trigger
+    new_trigger._action = self
+    self.triggers[new_trigger_class] = new_trigger
   }
 
   $.each(self.triggers, function(trigger_name)
@@ -112,7 +112,7 @@ function Action(options, kb_trigger)
     if (self.triggers[trigger_type] == undefined)
       return
 
-    if (self.triggers[trigger_type].length != undefined)
+    if (self.triggers[trigger_type] instanceof Array)
     {
       var trigger_actions = []
 
@@ -548,6 +548,8 @@ function Input(options)
 
       "click": function(e)
       {
+        warn(e);
+
         var target_pos = $(e.currentTarget).position()
         var x = e.pageX - target_pos.left
         var y = e.pageY - target_pos.top
@@ -595,8 +597,6 @@ function ActionGroup(options)
   }
 
   self.clear()
-
-  self.splice = Array.prototype.splice
 
   self.push = function(new_item)
   {
@@ -660,3 +660,5 @@ function ActionGroup(options)
   input.add_action(action_catch)
 
 }
+
+ActionGroup.prototype = new Array()
