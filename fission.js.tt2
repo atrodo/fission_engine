@@ -1,3 +1,5 @@
+[% INCLUDE js/moo.js %]
+
 (function($)
 {
   'use strict';
@@ -14,6 +16,7 @@
       max_do_aux           = 50
       show_phys_box        = 0
       show_draw_box        = 0
+      show_click_box       = 0
       preload_interval     = 500
       paint_chunk_interval = 50
       chunk_draw_range     = 7
@@ -66,11 +69,12 @@
     [% INCLUDE js/animation.js %]
     [% INCLUDE js/sprite.js %]
     [% INCLUDE js/ai.js %]
-    [% INCLUDE js/runtime.js %]
     [% INCLUDE js/layers.js %]
-    [% INCLUDE js/cooldown.js %]
+    [% INCLUDE js/cooldown2.js %]
     [% INCLUDE js/input.js %]
     [% INCLUDE js/noise.js %]
+
+    [% INCLUDE js/runtime.js %]
 
     [% WRAPPER scope %]
       [% PROCESS INCLUDE_MAYBE file="${game_prefix}.js" %]
