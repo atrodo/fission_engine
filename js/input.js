@@ -455,7 +455,7 @@ function Input(options)
 
       if (result instanceof Cooldown)
       {
-        result.set_result(action)
+        result.result = action
         actions[i] = result
       }
 
