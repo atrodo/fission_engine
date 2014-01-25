@@ -138,7 +138,10 @@ function Action(options, kb_trigger)
 
   self.toString = function()
   {
-    return self.action_name || self.id()
+    if (self.action_name != undefined)
+      return self.action_name;
+
+    return self.id()
   }
 }
 
