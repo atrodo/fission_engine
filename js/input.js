@@ -25,7 +25,7 @@ function Action(options, kb_trigger)
       click: null,
       action: new action_check(_id),
     },
-    state: {}
+    data: {}
   }, options);
 
   var self = this;
