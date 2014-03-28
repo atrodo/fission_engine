@@ -582,6 +582,7 @@ function ActionGroup(options)
   }, options);
 
   var self = this;
+  var data = []
 
   if (self.layer == undefined)
   {
@@ -590,14 +591,21 @@ function ActionGroup(options)
 
   var input = new Input({layer: self.layer})
 
+  $.each(Object.getOwnPropertyNames(Array.prototype), function(i, func_name)
+  {
+    var func = Array.prototype[func_name]
+    if ($.isFunction(func))
+      self[func_name] = func.bind(data);
+  })
+
   self.clear = function()
   {
-    for (var i = 0; i < self.length; i++)
+    for (var i = 0; i < data.length; i++)
     {
-      delete self[i]
+      delete data[i]
     }
 
-    self.length = 0;
+    data.length = 0;
     self.current = 0;
   }
 
@@ -610,24 +618,29 @@ function ActionGroup(options)
 
     if ($.isArray(new_item))
     {
-      $.each(new_item, self.push)
+      $.each(new_item, function(i, new_item) { self.push(new_item) })
       return
     }
 
     if (!(new_item instanceof Action))
       die("Can only add Action or Function to ActionGroup")
 
-    self[self.length] = new_item
-    self.length++
+    data.push(new_item)
+  }
+
+  self.get = function(i)
+  {
+    return data[i]
   }
 
   self.get_current = function()
   {
-    return self[self.current]
+    return data[self.current]
+  }
 
   self.set_current = function(new_current)
   {
-    new_current = make_between(new_current, 0, self.length - 1);
+    new_current = make_between(new_current, 0, data.length - 1);
 
     self.current = new_current
     if ($.isFunction(self.on_change))
@@ -640,17 +653,19 @@ function ActionGroup(options)
 
   self.prev = function()
   {
-    self.current = (self.current - 1) % self.length
+    self.set_current((self.current - 1) % data.length)
+
     return new Cooldown()
   }
   self.next = function()
   {
-    self.current = (self.current + 1) % self.length
+    self.set_current((self.current + 1) % data.length)
+
     return new Cooldown()
   }
   self.select = function()
   {
-    var action = self[self.current]
+    var action = data[self.current]
 
     if (action == undefined || !(action instanceof Action) )
       return;
@@ -667,10 +682,13 @@ function ActionGroup(options)
   var action_catch = new Action()
   $.each(triggers, function(k, trigger_class)
   {
-    action_catch.set_trigger(self, trigger_class)
+    action_catch.set_trigger(data, trigger_class)
   });
 
   input.add_action(action_catch)
+
+  console.log(self)
+  self.d = function() { return data };
 
 }
 
