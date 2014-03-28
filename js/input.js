@@ -577,6 +577,8 @@ function ActionGroup(options)
     next: null,
     prev: null,
     select: null,
+
+    on_change: null,
   }, options);
 
   var self = this;
@@ -622,6 +624,14 @@ function ActionGroup(options)
   self.get_current = function()
   {
     return self[self.current]
+
+  self.set_current = function(new_current)
+  {
+    new_current = make_between(new_current, 0, self.length - 1);
+
+    self.current = new_current
+    if ($.isFunction(self.on_change))
+      self.on_change()
   }
 
   var key_prev = self.prev
