@@ -77,7 +77,70 @@
     [% INCLUDE js/runtime.js %]
 
     [% WRAPPER scope %]
-      [% PROCESS INCLUDE_MAYBE file="${game_prefix}.js" %]
+
+      var game_state = {};
+
+      [% WRAPPER scope %]
+        var _files = {};
+
+        [% FOREACH dir IN [ "action", "layer", "logic", "state" ] %]
+          [% USE d = Directory("${basedir}/lib/${dir}") %]
+          [% FOREACH file IN d.files %]
+            [% IF file.path.match('(?xms) tt 2? $') %]
+              [% undef = PROCESS "${file.path}" %]
+            [% END %]
+          [% END %]
+
+          [% FOREACH file IN d.files %]
+            [% NEXT IF file.path.match('(?xms) tt 2? $') %]
+            [%
+              path = file.path
+                .remove("^${basedir}")
+                .remove('^lib/')
+                .remove('[.]js$')
+            %]
+
+            /* [% path %] */
+            _files[ '[% path %]' ] = function(require, exports, module)
+            {
+              [% INCLUDE "${file.path}" %]
+            }
+          [% END %]
+        [% END %]
+
+        [% WRAPPER scope %]
+          var _modules = {};
+          var require = function(module_id)
+          {
+
+            if (typeof _files[module_id] === "function")
+            {
+              var f = _files[module_id];
+              delete _files[module_id];
+
+              var exports = {}
+              var module = {
+                id: module_id,
+                exports: exports,
+              }
+              _modules[module_id] = module
+
+              f(require, exports, module);
+            }
+
+            if (_modules[module_id] == undefined)
+              return;
+
+            return _modules[module_id].exports;
+          }
+
+          $.each(_files, function(module_id)
+          {
+            require(module_id)
+          });
+        [% END %]
+      [% END %]
+
     [% END %]
 
   }
