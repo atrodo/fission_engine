@@ -3,7 +3,7 @@
     $.extend(this, {
       width:  [% width %],
       height: [% height %],
-      trax_x: [% widht / 2 %],
+      trax_x: [% width / 2 %],
       trax_y: [% height / 2 %],
 
       //
@@ -246,7 +246,7 @@
       return frame_number
     }
 
-    var name_match = /^(\w*)[.](.*)$/
+    var name_match = /^(\w*)[.]?(.*)$/
     self.find_group = function(name)
     {
       var name_split = name.match(name_match)
