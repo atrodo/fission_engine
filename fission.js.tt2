@@ -1,3 +1,5 @@
+[% INCLUDE js/moo.js %]
+
 (function($)
 {
   'use strict';
@@ -14,6 +16,7 @@
       max_do_aux           = 50
       show_phys_box        = 0
       show_draw_box        = 0
+      show_click_box       = 0
       preload_interval     = 500
       paint_chunk_interval = 50
       chunk_draw_range     = 7
@@ -66,14 +69,78 @@
     [% INCLUDE js/animation.js %]
     [% INCLUDE js/sprite.js %]
     [% INCLUDE js/ai.js %]
-    [% INCLUDE js/runtime.js %]
     [% INCLUDE js/layers.js %]
-    [% INCLUDE js/cooldown.js %]
+    [% INCLUDE js/cooldown2.js %]
     [% INCLUDE js/input.js %]
     [% INCLUDE js/noise.js %]
 
+    [% INCLUDE js/runtime.js %]
+
     [% WRAPPER scope %]
-      [% PROCESS INCLUDE_MAYBE file="${game_prefix}.js" %]
+
+      var game_state = {};
+
+      [% WRAPPER scope %]
+        var _files = {};
+
+        [% FOREACH dir IN [ "action", "layer", "logic", "state" ] %]
+          [% USE d = Directory("${basedir}/lib/${dir}") %]
+          [% FOREACH file IN d.files %]
+            [% IF file.path.match('(?xms) tt 2? $') %]
+              [% undef = PROCESS "${file.path}" %]
+            [% END %]
+          [% END %]
+
+          [% FOREACH file IN d.files %]
+            [% NEXT IF file.path.match('(?xms) tt 2? $') %]
+            [%
+              path = file.path
+                .remove("^${basedir}")
+                .remove('^lib/')
+                .remove('[.]js$')
+            %]
+
+            /* [% path %] */
+            _files[ '[% path %]' ] = function(require, exports, module)
+            {
+              [% INCLUDE "${file.path}" %]
+            }
+          [% END %]
+        [% END %]
+
+        [% WRAPPER scope %]
+          var _modules = {};
+          var require = function(module_id)
+          {
+
+            if (typeof _files[module_id] === "function")
+            {
+              var f = _files[module_id];
+              delete _files[module_id];
+
+              var exports = {}
+              var module = {
+                id: module_id,
+                exports: exports,
+              }
+              _modules[module_id] = module
+
+              f(require, exports, module);
+            }
+
+            if (_modules[module_id] == undefined)
+              return;
+
+            return _modules[module_id].exports;
+          }
+
+          $.each(_files, function(module_id)
+          {
+            require(module_id)
+          });
+        [% END %]
+      [% END %]
+
     [% END %]
 
   }

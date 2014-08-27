@@ -2,36 +2,33 @@
   function lprng(seed)
   {
     var mod = Math.pow(2, 32);
+    var magic = 0x80f77deb;
 
     var buffer = 16
     this.data = new Uint32Array(buffer)
     this.idx = 0
 
-    for (var i = 0; i < buffer; i++)
-    {
-      this.data[i] = 0;
-    }
+    this.lfsr = 1;
 
-    var tmp_data = new Uint32Array(buffer)
     this.seed = function(seed)
     {
       if (seed.length == undefined)
         seed = [seed]
 
-      for (var i = 1; i < buffer; i++)
-        this.data[i] = 0;
+      var lfsr = 0;
 
       for (var iseed = 0; iseed < seed.length; iseed++)
       {
-        tmp_data[0] = seed[iseed];
-        this.data[iseed] ^= tmp_data[0];
+        if (iseed < seed.length)
+          lfsr ^= seed[iseed];
 
-        for (var i = 1; i < buffer; i++)
-        {
-          tmp_data[i] = tmp_data[i - 1] * 69069 + 13
-          this.data[i] ^= tmp_data[i]
-        }
+        this.data[iseed] = lfsr;
+
+        lfsr = (lfsr >> 1) ^ (-(lfsr & 1) & magic);
+
       }
+
+      this.lfsr = lfsr;
 
       for (var i = 0; i <= buffer; i++)
       {
@@ -43,41 +40,20 @@
 
     this.prng = function(multi)
     {
-      var self = this
-      var s,result,idx
-      [% WRAPPER scope %]
       multi = multi || 1
-      s = self.data[self.idx]
-      result = s
-      [% END %]
+      var lfsr = this.lfsr
+      var s = this.data[this.idx] ^ lfsr
 
-      [% WRAPPER scope %]
-      idx = self.idx++
-      self.idx %= buffer
-      [% END %]
+      var idx = this.idx ++
+      this.idx %= buffer
 
-      [% WRAPPER scope %]
-      s ^= self.data[0]
-      s ^= self.data[2]
-      s ^= self.data[3]
-      s ^= self.data[5]
-      [% END %]
-      [% WRAPPER scope %]
+      s ^= this.data[(idx + lfsr & 0x7) % buffer]
+      lfsr = (lfsr >> 1) ^ (-(lfsr & 1) & magic);
 
-      self.data[idx-1] = s
+      this.data[this.idx] = s
+      this.lfsr = lfsr;
 
-      [% END %]
-      [% WRAPPER scope %]
-      result += self.data[2]
-      result += self.data[5]
-
-      [% END %]
-      [% WRAPPER scope %]
-      result = result % mod
-      result *= 1/mod
-
-      [% END %]
-      return result * multi
+      return this.data[this.idx]
     }
 
     this.choose = function()

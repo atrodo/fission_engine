@@ -3,7 +3,7 @@
     $.extend(this, {
       width:  [% width %],
       height: [% height %],
-      trax_x: [% widht / 2 %],
+      trax_x: [% width / 2 %],
       trax_y: [% height / 2 %],
 
       //
@@ -201,21 +201,18 @@
       runtime.events.emit('runtime.maintaince', get_cou())
     }
 
-    $(document).bind("keydown", function(e)
+    var input_listen = function(e)
     {
-      self.foreach_active_layer(function(layer)
-      {
-        layer.process_keydown(e)
-      })
-    })
+      e.preventDefault()
 
-    $(document).bind("keyup", function(e)
-    {
       self.foreach_active_layer(function(layer)
       {
-        layer.process_keyup(e)
+        layer.process_event(e)
       })
-    })
+    }
+
+    $(document).bind("keydown keyup", input_listen)
+    $(stage.canvas).bind("click", input_listen)
 
     var maintain_interval
     var phys_interval
@@ -249,7 +246,7 @@
       return frame_number
     }
 
-    var name_match = /^(\w*)[.](.*)$/
+    var name_match = /^(\w*)[.]?(.*)$/
     self.find_group = function(name)
     {
       var name_split = name.match(name_match)

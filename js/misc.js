@@ -39,6 +39,34 @@ var min = function(a, b)
   return (a < b) ? a : b;
 }
 
+var make_between = function(n, a, b)
+{
+  if (b == undefined)
+    die("make_between must be called with 3 numbers (number, min, max)")
+
+  if (a > b)
+  {
+    var c = a;
+    a = b; b = c;
+  }
+  n = max(n, a);
+  n = min(n, b);
+
+  if (isNaN(n))
+    die("make_between was called with bad values, NaN was returned")
+
+  return n;
+}
+
+var guid
+[% WRAPPER scope %]
+  var _id = 0;
+  guid = function()
+  {
+    return _id++
+  }
+[% END %]
+
 var compact_array = function(old_all)
 {
   var new_all = []
@@ -50,6 +78,13 @@ var compact_array = function(old_all)
     }
   }
   return new_all;
+}
+
+var combine_arrays = function(old_all)
+{
+  var result = []
+  result = Array.prototype.concat.apply(result, old_all)
+  return compact_array(result)
 }
 
 var count_object_keys = function(obj)
@@ -67,4 +102,9 @@ var count_object_keys = function(obj)
 var warn = function()
 {
   console.log.apply(console, arguments)
+}
+
+var die = function(e)
+{
+  throw new Error(e)
 }
